@@ -22,6 +22,12 @@
         <button class="font-size-btn" data-size="medium" title="Середній шрифт">A</button>
         <button class="font-size-btn" data-size="large" title="Великий шрифт">A</button>
       </div>
+      <button id="btn-settings" class="theme-toggle" title="Налаштування">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
       <button id="theme-toggle" class="theme-toggle" title="Переключити тему">
         <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
@@ -57,9 +63,54 @@
     <div class="input-hint">Enter — надіслати &nbsp;·&nbsp; Shift+Enter — новий рядок</div>
     </div>
 
+  <!-- Settings modal -->
+  <div id="settings-modal" class="settings-modal">
+    <div class="settings-dialog">
+      <div class="settings-header">
+        <span class="settings-title">Налаштування</span>
+        <button id="settings-close" class="settings-close">&times;</button>
+      </div>
+      <form id="settings-form" class="settings-form">
+        <label class="settings-label">
+          API ключ Gemini
+          <div class="settings-apikey-wrap">
+            <input id="settings-apikey" type="password" class="settings-input" placeholder="AIza..." autocomplete="off">
+            <button type="button" id="settings-apikey-toggle" class="settings-apikey-toggle">Показати</button>
+          </div>
+        </label>
+        <label class="settings-label">
+          Ім'я учня
+          <input id="settings-name" type="text" class="settings-input" placeholder="Тимофій">
+        </label>
+        <label class="settings-label">
+          Клас вступу
+          <input id="settings-grade" type="number" class="settings-input" min="2" max="12">
+        </label>
+        <label class="settings-label">
+          Питань за сесію
+          <input id="settings-questions" type="number" class="settings-input" min="3" max="20">
+        </label>
+        <label class="settings-label">
+          Модель Gemini
+          <input id="settings-model" type="text" class="settings-input" placeholder="gemini-2.5-flash-lite-preview">
+        </label>
+        <div class="settings-nano-wrap">
+          <label class="settings-label settings-label--row">
+            <input id="settings-nano" type="checkbox">
+            Використовувати Gemini Nano (локальна валідація)
+          </label>
+          <div id="settings-nano-hint" class="settings-nano-hint hidden"></div>
+        </div>
+        <button type="submit" class="settings-save">Зберегти</button>
+      </form>
+    </div>
+  </div>
+
   <script src="js/storage.js"></script>
   <script src="js/gemini.js"></script>
+  <script src="js/nano.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/settings.js"></script>
   <script src="js/quiz.js"></script>
   <script src="js/app.js"></script>
 </body>

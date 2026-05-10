@@ -2,7 +2,8 @@
 const DEFAULT_CONFIG = {
   model: 'gemini-2.5-flash-lite-preview',
   targetGrade: 8,
-  questionsPerSession: 7
+  questionsPerSession: 7,
+  useNano: false
 };
 
 let config = { ...DEFAULT_CONFIG };
@@ -12,12 +13,20 @@ let lastExamContext = null;
 let freeChatActive = false;
 
 async function loadConfig() {
+  // 1. localStorage має пріоритет
+  const saved = Storage.getSettings();
+  if (saved && Object.keys(saved).length > 0) {
+    config = { ...DEFAULT_CONFIG, ...saved };
+    return;
+  }
+  // 2. Міграція з settings.json → localStorage
   try {
     const res = await fetch(chrome.runtime.getURL('config/settings.json'));
     const json = await res.json();
     config = { ...DEFAULT_CONFIG, ...json };
+    Storage.saveSettings(config);
   } catch {
-    // settings.json missing — use defaults
+    // settings.json відсутній — залишаємо DEFAULT_CONFIG
   }
 }
 
@@ -38,14 +47,18 @@ async function loadSubjects() {
 async function init() {
   UI.init();
   UI.setInputEnabled(false);
+  Settings.init();
 
   await Promise.all([loadConfig(), loadSubjects()]);
+
+  if (config.useNano) await Nano.init();
 
   const nameGreet = config.studentName ? `, ${config.studentName}` : '';
   UI.addBot(`Привіт${nameGreet}! Я Study Buddy 👋\nГотуємось до вступу в ${config.targetGrade} клас. Обирай предмет — і починаємо!`);
 
   if (!config.apiKey) {
-    UI.addSystem('⚠️ API key не вказано. Додай його у config/settings.json і перезавантаж розширення.');
+    UI.addSystem('⚠️ API key не вказано. Відкрий налаштування і додай його.');
+    Settings.open();
     return;
   }
 
