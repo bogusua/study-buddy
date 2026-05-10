@@ -205,6 +205,8 @@ html, body {
 .messages .explain-mini-input button,
 .messages .dispute-result { font-size: var(--msg-font); }
 
+.settings-dialog { font-size: var(--msg-font); }
+
 .messages .action-btn,
 .messages .skip-link,
 .messages .dispute-input,
@@ -717,7 +719,6 @@ html, body {
 
 .settings-title {
   font-weight: 600;
-  font-size: 15px;
 }
 
 .settings-close {
@@ -745,7 +746,6 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
 }
@@ -756,7 +756,6 @@ html, body {
   gap: 8px;
   color: var(--text);
   font-weight: 400;
-  font-size: 13px;
   cursor: pointer;
 }
 
@@ -764,7 +763,7 @@ html, body {
   padding: 8px 12px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 13px;
+  font-size: inherit;
   font-family: inherit;
   background: var(--bg);
   color: var(--text);
@@ -792,7 +791,7 @@ html, body {
   border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: inherit;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
@@ -826,7 +825,7 @@ html, body {
   border-radius: var(--radius-sm);
   background: var(--primary);
   color: #fff;
-  font-size: 14px;
+  font-size: inherit;
   font-family: inherit;
   font-weight: 500;
   cursor: pointer;
