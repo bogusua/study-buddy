@@ -8,6 +8,8 @@ const UI = {
   _stopwatchEl: null,
   _stopwatchInterval: null,
   _stopwatchSeconds: 0,
+  _stopwatchVisible: false,
+  _actionsVisible: false,
 
   init() {
     this.messagesEl = document.getElementById('messages');
@@ -56,25 +58,45 @@ const UI = {
     const saved = localStorage.getItem('sb_font') || 'small';
     this._applyFontSize(saved);
 
-    document.querySelectorAll('.font-size-btn').forEach(btn => {
+    const trigger = document.getElementById('font-size-trigger');
+    const menu = document.getElementById('font-size-menu');
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.font-size-option').forEach(btn => {
       btn.addEventListener('click', () => {
         this._applyFontSize(btn.dataset.size);
         localStorage.setItem('sb_font', btn.dataset.size);
+        menu.classList.remove('open');
       });
     });
+
+    document.addEventListener('click', () => menu.classList.remove('open'));
   },
 
   _applyFontSize(size) {
     document.documentElement.setAttribute('data-font', size);
-    document.querySelectorAll('.font-size-btn').forEach(btn => {
+    const sizes = { small: '11px', medium: '14px', large: '17px' };
+    document.getElementById('font-size-trigger').style.fontSize = sizes[size];
+    document.querySelectorAll('.font-size-option').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.size === size);
     });
+  },
+
+  _updateSubheader() {
+    document.getElementById('subheader').classList.toggle(
+      'visible', this._stopwatchVisible || this._actionsVisible
+    );
   },
 
   startStopwatch() {
     this._stopwatchSeconds = 0;
     this._stopwatchEl.textContent = '0:00';
-    this._stopwatchEl.classList.remove('hidden');
+    this._stopwatchVisible = true;
+    this._updateSubheader();
     clearInterval(this._stopwatchInterval);
     this._stopwatchInterval = setInterval(() => {
       this._stopwatchSeconds++;
@@ -99,17 +121,22 @@ const UI = {
 
   hideStopwatch() {
     this.stopStopwatch();
-    this._stopwatchEl.classList.add('hidden');
+    this._stopwatchVisible = false;
+    this._updateSubheader();
   },
 
   showHeaderActions(onNewExam, onChangeSubject) {
     document.getElementById('btn-new-exam').onclick = onNewExam;
     document.getElementById('btn-change-subject').onclick = onChangeSubject;
-    document.getElementById('header-actions').classList.add('visible');
+    document.getElementById('exam-btns').classList.add('visible');
+    this._actionsVisible = true;
+    this._updateSubheader();
   },
 
   hideHeaderActions() {
-    document.getElementById('header-actions').classList.remove('visible');
+    document.getElementById('exam-btns').classList.remove('visible');
+    this._actionsVisible = false;
+    this._updateSubheader();
   },
 
   // System notice
