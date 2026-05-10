@@ -7,8 +7,8 @@ const Nano = {
   async checkAvailability() {
     try {
       return await LanguageModel.availability({
-        expectedInputLanguages: ['uk'],
-        expectedOutputLanguages: ['uk']
+        expectedInputs: [{ type: 'text', languages: ['en'] }],
+        expectedOutputs: [{ type: 'text', languages: ['en'] }]
       });
     } catch (e) {
       return 'unavailable';
