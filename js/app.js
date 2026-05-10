@@ -232,7 +232,7 @@ function getWeakTopics(subjectKey) {
         if (!qr.topic) return;
         if (!topicStats[qr.topic]) topicStats[qr.topic] = { wrong: 0, total: 0 };
         topicStats[qr.topic].total++;
-        if (!qr.correct && !qr.skipped) topicStats[qr.topic].wrong++;
+        if (!qr.correct) topicStats[qr.topic].wrong++;  // wrong або skipped
       });
     });
   return Object.entries(topicStats)
