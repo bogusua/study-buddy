@@ -5,11 +5,15 @@ const UI = {
   _typingEl: null,
   _skipCallback: null,
   _explainButtons: [],
+  _stopwatchEl: null,
+  _stopwatchInterval: null,
+  _stopwatchSeconds: 0,
 
   init() {
     this.messagesEl = document.getElementById('messages');
     this.inputEl = document.getElementById('user-input');
     this.sendBtn = document.getElementById('send-btn');
+    this._stopwatchEl = document.getElementById('stopwatch');
     this._initTheme();
     this._initFontSize();
     this._initInputResize();
@@ -22,7 +26,9 @@ const UI = {
   _resizeInput() {
     const el = this.inputEl;
     el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    const next = Math.min(el.scrollHeight, 120);
+    el.style.height = next + 'px';
+    el.style.overflowY = el.scrollHeight > 120 ? 'auto' : 'hidden';
   },
 
   _initTheme() {
@@ -63,6 +69,37 @@ const UI = {
     document.querySelectorAll('.font-size-btn').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.size === size);
     });
+  },
+
+  startStopwatch() {
+    this._stopwatchSeconds = 0;
+    this._stopwatchEl.textContent = '0:00';
+    this._stopwatchEl.classList.remove('hidden');
+    clearInterval(this._stopwatchInterval);
+    this._stopwatchInterval = setInterval(() => {
+      this._stopwatchSeconds++;
+      const m = Math.floor(this._stopwatchSeconds / 60);
+      const s = this._stopwatchSeconds % 60;
+      this._stopwatchEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    }, 1000);
+  },
+
+  stopStopwatch() {
+    clearInterval(this._stopwatchInterval);
+    this._stopwatchInterval = null;
+  },
+
+  getStopwatchTime() {
+    const m = Math.floor(this._stopwatchSeconds / 60);
+    const s = this._stopwatchSeconds % 60;
+    return m > 0
+      ? `${m} хв ${s} сек`
+      : `${s} сек`;
+  },
+
+  hideStopwatch() {
+    this.stopStopwatch();
+    this._stopwatchEl.classList.add('hidden');
   },
 
   showHeaderActions(onNewExam, onChangeSubject) {

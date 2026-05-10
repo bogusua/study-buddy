@@ -133,6 +133,20 @@ html, body {
   background: var(--border);
 }
 
+/* Stopwatch */
+.stopwatch {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-right: 6px;
+}
+
+.stopwatch.hidden {
+  display: none;
+}
+
 /* Font size toggle */
 .font-size-toggle {
   display: flex;
@@ -375,7 +389,9 @@ html, body {
   color: var(--text);
   transition: border-color 0.15s;
   resize: none;
-  overflow-y: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
   line-height: 1.5;
   min-height: 38px;
   max-height: 120px; /* ~5 рядків */
@@ -389,6 +405,18 @@ html, body {
 .user-input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.user-input::-webkit-scrollbar {
+  width: 4px;
+}
+.user-input::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0;
+}
+.user-input::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
 }
 
 .send-btn {
@@ -600,8 +628,8 @@ html, body {
 }
 .explain-chat-bot {
   align-self: flex-start;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
   color: var(--text);
   padding: 5px 10px;
   border-radius: 12px;
@@ -610,6 +638,12 @@ html, body {
   max-width: 90%;
   line-height: 1.5;
 }
+
+[data-theme="dark"] .explain-chat-bot {
+  background: #0d1f14;
+  border-color: #166534;
+}
+
 .explain-mini-input {
   display: flex;
   gap: 6px;
@@ -618,7 +652,7 @@ html, body {
 .explain-mini-input input {
   flex: 1;
   padding: 6px 10px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid #bbf7d0;
   border-radius: 12px;
   font-size: 12px;
   font-family: inherit;
@@ -626,12 +660,20 @@ html, body {
   color: var(--text);
   outline: none;
 }
-.explain-mini-input input:focus { border-color: var(--primary); }
+.explain-mini-input input:focus { border-color: var(--correct); }
+
+[data-theme="dark"] .explain-mini-input input {
+  border-color: #166534;
+}
+[data-theme="dark"] .explain-mini-input input:focus {
+  border-color: var(--correct);
+}
+
 .explain-mini-input button {
   padding: 6px 12px;
   border: none;
   border-radius: 12px;
-  background: var(--primary);
+  background: var(--correct);
   color: white;
   font-size: 13px;
   font-family: inherit;

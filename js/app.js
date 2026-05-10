@@ -71,6 +71,7 @@ async function startSubjectSelection() {
 async function startExam(subjectKey) {
   disableFreeChat();
   UI.hideHeaderActions();
+  UI.hideStopwatch();
   lastSubjectKey = subjectKey;
   const subject = subjects[subjectKey];
   const knownGrade = config.targetGrade - 1;
@@ -100,6 +101,7 @@ async function startExam(subjectKey) {
   }
 
   Quiz.start(subjectKey, subject.name, questions);
+  UI.startStopwatch();
   await askNextQuestion();
 }
 
@@ -182,13 +184,15 @@ async function finishExam() {
     questions: Quiz.session.questions
   };
 
+  const elapsed = UI.getStopwatchTime();
+  UI.stopStopwatch();
   const { correct, total } = Quiz.finish();
   const pct = Math.round((correct / total) * 100);
   const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪';
   const nameFin = config.studentName ? `, ${config.studentName}` : '';
 
   UI.addBot(
-    `${emoji} Іспит завершено${nameFin}!\n\nПравильних відповідей: ${correct} з ${total} (${pct}%)`,
+    `${emoji} Іспит завершено${nameFin}!\n\nПравильних відповідей: ${correct} з ${total} (${pct}%)\nЧас: ${elapsed}`,
     { progress: 1 }
   );
 
