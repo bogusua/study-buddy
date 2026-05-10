@@ -209,7 +209,9 @@ async function finishExam() {
 
   UI.enableExplainButtons();
 
-  const weakTopics = getWeakTopics(lastSubjectKey);
+  const { history } = Storage.getProgress();
+  const subjectExamCount = history.filter(r => r.subject === lastSubjectKey).length;
+  const weakTopics = subjectExamCount >= 5 ? getWeakTopics(lastSubjectKey) : [];
   UI.showHeaderActions(
     () => startExam(lastSubjectKey),
     () => { disableFreeChat(); UI.hideHeaderActions(); startSubjectSelection(); },
@@ -250,11 +252,20 @@ async function startWeakExam(subjectKey) {
 
   disableFreeChat();
   UI.hideHeaderActions();
-  UI.hideStopwatch();
   lastSubjectKey = subjectKey;
   const subject = subjects[subjectKey];
 
   UI.addUser('Слабкі теми');
+  const topicList = weakTopics.map(t => `• ${t.name}`).join('\n');
+  UI.addBot(
+    `Ось теми де найбільше помилок з ${subject.name.toLowerCase()}:\n\n${topicList}`,
+    { buttons: [{ label: 'Сформувати іспит', onClick: () => _runWeakExam(subjectKey, weakTopics) }] }
+  );
+}
+
+async function _runWeakExam(subjectKey, weakTopics) {
+  UI.hideStopwatch();
+  const subject = subjects[subjectKey];
   UI.addBot(`Формую іспит по слабких темах з ${subject.name.toLowerCase()}...`);
   UI.showTyping();
 
@@ -271,7 +282,7 @@ async function startWeakExam(subjectKey) {
   } catch (err) {
     UI.addBot(`Помилка генерації іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);
     UI.addBot('Спробувати ще раз?', {
-      buttons: [{ label: 'Так', onClick: () => startWeakExam(subjectKey) }]
+      buttons: [{ label: 'Так', onClick: () => _runWeakExam(subjectKey, weakTopics) }]
     });
     return;
   }
