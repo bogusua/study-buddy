@@ -1,0 +1,15 @@
+{
+  "name": "Українська мова",
+  "hasEssay": true,
+  "topics": [
+    { "id": "phonetics",     "name": "Фонетика і графіка",         "branch": "language", "grade": 4 },
+    { "id": "orthography",   "name": "Орфографія",                  "branch": "language", "grade": 4 },
+    { "id": "vocabulary",    "name": "Лексика і фразеологія",       "branch": "language", "grade": 5 },
+    { "id": "word_building", "name": "Словотвір",                   "branch": "grammar",  "grade": 5 },
+    { "id": "parts_speech",  "name": "Частини мови",                "branch": "grammar",  "grade": 5 },
+    { "id": "morphology",    "name": "Морфологія",                  "branch": "grammar",  "grade": 6 },
+    { "id": "syntax",        "name": "Синтаксис. Речення",          "branch": "grammar",  "grade": 6 },
+    { "id": "punctuation",   "name": "Пунктуація",                  "branch": "language", "grade": 6 },
+    { "id": "stylistics",    "name": "Стилістика і культура мови",  "branch": "language", "grade": 7 }
+  ]
+}

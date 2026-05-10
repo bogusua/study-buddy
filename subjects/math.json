@@ -1,0 +1,25 @@
+{
+  "name": "Математика",
+  "topics": [
+    { "id": "arithmetic",       "name": "Арифметика",                       "branch": "elementary", "grade": 4 },
+    { "id": "fractions",        "name": "Звичайні дроби",                   "branch": "elementary", "grade": 4 },
+    { "id": "decimals",         "name": "Десяткові дроби",                  "branch": "elementary", "grade": 4 },
+    { "id": "percentages",      "name": "Відсотки",                         "branch": "elementary", "grade": 5 },
+    { "id": "ratios",           "name": "Відношення та пропорції",          "branch": "elementary", "grade": 6 },
+    { "id": "units",            "name": "Одиниці вимірювання",              "branch": "elementary", "grade": 4 },
+
+    { "id": "expressions",      "name": "Вирази та спрощення",              "branch": "algebra",    "grade": 5 },
+    { "id": "linear_eq",        "name": "Лінійні рівняння",                 "branch": "algebra",    "grade": 6 },
+    { "id": "systems_eq",       "name": "Системи рівнянь",                  "branch": "algebra",    "grade": 7 },
+    { "id": "inequalities",     "name": "Нерівності",                       "branch": "algebra",    "grade": 7 },
+    { "id": "powers",           "name": "Степені та корені",                "branch": "algebra",    "grade": 7 },
+    { "id": "functions",        "name": "Функції та графіки",               "branch": "algebra",    "grade": 7 },
+
+    { "id": "angles",           "name": "Кути та їх властивості",           "branch": "geometry",   "grade": 5 },
+    { "id": "triangles",        "name": "Трикутники",                       "branch": "geometry",   "grade": 6 },
+    { "id": "quadrilaterals",   "name": "Чотирикутники",                    "branch": "geometry",   "grade": 6 },
+    { "id": "circles",          "name": "Коло та круг",                     "branch": "geometry",   "grade": 6 },
+    { "id": "area_perimeter",   "name": "Площа та периметр фігур",          "branch": "geometry",   "grade": 6 },
+    { "id": "volume",           "name": "Об'єм тіл",                        "branch": "geometry",   "grade": 7 }
+  ]
+}
