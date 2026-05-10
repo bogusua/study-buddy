@@ -127,15 +127,8 @@ const Stats = {
     header.className = 'stats-subject-header';
     header.innerHTML = `<span class="stats-subject-name">${name}</span>`;
 
-    const clearBtn = document.createElement('button');
-    clearBtn.className = 'stats-clear-subject';
-    clearBtn.title = `Очистити статистику: ${name}`;
-    clearBtn.textContent = 'Очистити';
-    clearBtn.addEventListener('click', () => this._confirmClear(`Очистити статистику по предмету "${name}"?`, () => {
-      Storage.clearSubjectProgress(key);
-      this._render();
-    }));
-    header.appendChild(clearBtn);
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'stats-subject-btns';
 
     if (records.length >= 5) {
       const weakBtn = document.createElement('button');
@@ -145,9 +138,20 @@ const Stats = {
         this.close();
         startWeakExam(key);
       });
-      header.appendChild(weakBtn);
+      btnGroup.appendChild(weakBtn);
     }
 
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'stats-clear-subject';
+    clearBtn.title = `Очистити статистику: ${name}`;
+    clearBtn.textContent = 'Очистити';
+    clearBtn.addEventListener('click', () => this._confirmClear(`Очистити статистику по предмету "${name}"?`, () => {
+      Storage.clearSubjectProgress(key);
+      this._render();
+    }));
+    btnGroup.appendChild(clearBtn);
+
+    header.appendChild(btnGroup);
     block.appendChild(header);
 
     const summary = document.createElement('div');
