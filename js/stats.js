@@ -136,6 +136,16 @@ const Stats = {
       this._render();
     }));
     header.appendChild(clearBtn);
+
+    const weakBtn = document.createElement('button');
+    weakBtn.className = 'stats-weak-btn';
+    weakBtn.textContent = 'Слабкі теми →';
+    weakBtn.addEventListener('click', () => {
+      this.close();
+      startWeakExam(key);
+    });
+    header.appendChild(weakBtn);
+
     block.appendChild(header);
 
     const summary = document.createElement('div');

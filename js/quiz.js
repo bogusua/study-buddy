@@ -11,7 +11,8 @@ const Quiz = {
       questions,
       current: 0,
       correct: 0,
-      skipped: 0
+      skipped: 0,
+      questionResults: []  // { topic, correct, skipped } — для "слабких місць"
     };
     Storage.saveSession(this.session);
   },
@@ -27,6 +28,12 @@ const Quiz = {
   },
 
   recordAnswer(wasCorrect, wasSkipped) {
+    const q = this.session.questions[this.session.current];
+    this.session.questionResults.push({
+      topic: q?.topic || '',
+      correct: wasCorrect,
+      skipped: wasSkipped
+    });
     if (wasCorrect) this.session.correct++;
     if (wasSkipped) this.session.skipped++;
     this.session.current++;
@@ -34,9 +41,9 @@ const Quiz = {
   },
 
   finish(timeSeconds) {
-    const { subject, correct, skipped, questions, startedAt, studentName } = this.session;
+    const { subject, correct, skipped, questions, startedAt, studentName, questionResults } = this.session;
     const total = questions.length;
-    Storage.saveExamResult(subject, correct, total, timeSeconds, startedAt, skipped, studentName);
+    Storage.saveExamResult(subject, correct, total, timeSeconds, startedAt, skipped, studentName, questionResults);
     Storage.clearSession();
     return { correct, total, skipped };
   },

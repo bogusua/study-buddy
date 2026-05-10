@@ -209,13 +209,76 @@ async function finishExam() {
 
   UI.enableExplainButtons();
 
+  const weakTopics = getWeakTopics(lastSubjectKey);
   UI.showHeaderActions(
     () => startExam(lastSubjectKey),
-    () => { disableFreeChat(); UI.hideHeaderActions(); startSubjectSelection(); }
+    () => { disableFreeChat(); UI.hideHeaderActions(); startSubjectSelection(); },
+    weakTopics.length > 0 ? () => startWeakExam(lastSubjectKey) : null
   );
 
   UI.addSystem('💬 Можеш запитати про будь-яке питання з іспиту — я поясню.');
   enableFreeChat();
+}
+
+// ─── Weak topics ─────────────────────────────────────────────────────────────
+
+function getWeakTopics(subjectKey) {
+  const { history } = Storage.getProgress();
+  const topicStats = {};
+  history
+    .filter(r => r.subject === subjectKey)
+    .forEach(r => {
+      (r.questionResults || []).forEach(qr => {
+        if (!qr.topic) return;
+        if (!topicStats[qr.topic]) topicStats[qr.topic] = { wrong: 0, total: 0 };
+        topicStats[qr.topic].total++;
+        if (!qr.correct && !qr.skipped) topicStats[qr.topic].wrong++;
+      });
+    });
+  return Object.entries(topicStats)
+    .filter(([, s]) => s.wrong > 0)
+    .sort((a, b) => (b[1].wrong / b[1].total) - (a[1].wrong / a[1].total))
+    .map(([name]) => ({ name }));
+}
+
+async function startWeakExam(subjectKey) {
+  const weakTopics = getWeakTopics(subjectKey);
+  if (weakTopics.length === 0) {
+    UI.addBot('Немає тем зі слабкими результатами — все чудово!');
+    return;
+  }
+
+  disableFreeChat();
+  UI.hideHeaderActions();
+  UI.hideStopwatch();
+  lastSubjectKey = subjectKey;
+  const subject = subjects[subjectKey];
+
+  UI.addUser('Слабкі теми');
+  UI.addBot(`Формую іспит по слабких темах з ${subject.name.toLowerCase()}...`);
+  UI.showTyping();
+
+  let questions;
+  try {
+    questions = await Gemini.generateExam(
+      config.apiKey,
+      config.model,
+      subject,
+      weakTopics,
+      config.targetGrade,
+      config.questionsPerSession
+    );
+  } catch (err) {
+    UI.addBot(`Помилка генерації іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);
+    UI.addBot('Спробувати ще раз?', {
+      buttons: [{ label: 'Так', onClick: () => startWeakExam(subjectKey) }]
+    });
+    return;
+  }
+
+  Quiz.start(subjectKey, subject.name, questions, config.studentName);
+  UI.startStopwatch();
+  await askNextQuestion();
 }
 
 // ─── Free chat ───────────────────────────────────────────────────────────────

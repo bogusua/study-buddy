@@ -23,11 +23,12 @@ const Storage = {
     }
   },
 
-  saveExamResult(subject, correct, total, time, startedAt, skipped, studentName) {
+  saveExamResult(subject, correct, total, time, startedAt, skipped, studentName, questionResults) {
     const progress = this.getProgress();
     const date = new Date().toISOString().split('T')[0];
 
-    progress.history.push({ subject, date, correct, total, time: time || 0, startedAt: startedAt || null, skipped: skipped || 0, studentName: studentName || '' });
+    // questionResults: [{ topic, correct, skipped }] — основа для майбутнього режиму "слабкі місця"
+    progress.history.push({ subject, date, correct, total, time: time || 0, startedAt: startedAt || null, skipped: skipped || 0, studentName: studentName || '', questionResults: questionResults || [] });
 
     if (!progress.subjectStats[subject]) {
       progress.subjectStats[subject] = { shown: 0, lastShown: date };

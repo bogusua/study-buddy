@@ -140,9 +140,16 @@ const UI = {
     document.getElementById('exam-progress-fill').style.width = '0%';
   },
 
-  showHeaderActions(onNewExam, onChangeSubject) {
+  showHeaderActions(onNewExam, onChangeSubject, onWeakExam) {
     document.getElementById('btn-new-exam').onclick = onNewExam;
     document.getElementById('btn-change-subject').onclick = onChangeSubject;
+    const weakBtn = document.getElementById('btn-weak-exam');
+    if (onWeakExam) {
+      weakBtn.onclick = onWeakExam;
+      weakBtn.classList.remove('hidden');
+    } else {
+      weakBtn.classList.add('hidden');
+    }
     document.getElementById('exam-btns').classList.add('visible');
     this._actionsVisible = true;
     this._updateSubheader();
@@ -150,6 +157,7 @@ const UI = {
 
   hideHeaderActions() {
     document.getElementById('exam-btns').classList.remove('visible');
+    document.getElementById('btn-weak-exam').classList.add('hidden');
     this._actionsVisible = false;
     this._updateSubheader();
   },
