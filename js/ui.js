@@ -111,6 +111,10 @@ const UI = {
     this._stopwatchInterval = null;
   },
 
+  getStopwatchSeconds() {
+    return this._stopwatchSeconds;
+  },
+
   getStopwatchTime() {
     const m = Math.floor(this._stopwatchSeconds / 60);
     const s = this._stopwatchSeconds % 60;
@@ -123,6 +127,17 @@ const UI = {
     this.stopStopwatch();
     this._stopwatchVisible = false;
     this._updateSubheader();
+    this.hideProgress();
+  },
+
+  setProgress(value) {
+    document.getElementById('exam-progress').classList.remove('hidden');
+    document.getElementById('exam-progress-fill').style.width = `${Math.round(value * 100)}%`;
+  },
+
+  hideProgress() {
+    document.getElementById('exam-progress').classList.add('hidden');
+    document.getElementById('exam-progress-fill').style.width = '0%';
   },
 
   showHeaderActions(onNewExam, onChangeSubject) {
@@ -176,16 +191,6 @@ const UI = {
         group.appendChild(btn);
       });
       msg.appendChild(group);
-    }
-
-    if (opts.progress != null) {
-      const wrap = document.createElement('div');
-      wrap.className = 'progress-bar-wrap';
-      const fill = document.createElement('div');
-      fill.className = 'progress-bar-fill';
-      fill.style.width = `${opts.progress * 100}%`;
-      wrap.appendChild(fill);
-      msg.appendChild(wrap);
     }
 
     // Skip button — subtle, right-aligned, below question

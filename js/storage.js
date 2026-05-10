@@ -23,11 +23,11 @@ const Storage = {
     }
   },
 
-  saveExamResult(subject, correct, total) {
+  saveExamResult(subject, correct, total, time, startedAt, skipped, studentName) {
     const progress = this.getProgress();
     const date = new Date().toISOString().split('T')[0];
 
-    progress.history.push({ subject, date, correct, total });
+    progress.history.push({ subject, date, correct, total, time: time || 0, startedAt: startedAt || null, skipped: skipped || 0, studentName: studentName || '' });
 
     if (!progress.subjectStats[subject]) {
       progress.subjectStats[subject] = { shown: 0, lastShown: date };
@@ -35,6 +35,17 @@ const Storage = {
     progress.subjectStats[subject].shown++;
     progress.subjectStats[subject].lastShown = date;
 
+    localStorage.setItem('sb_progress', JSON.stringify(progress));
+  },
+
+  clearProgress() {
+    localStorage.removeItem('sb_progress');
+  },
+
+  clearSubjectProgress(subject) {
+    const progress = this.getProgress();
+    progress.history = progress.history.filter(r => r.subject !== subject);
+    delete progress.subjectStats[subject];
     localStorage.setItem('sb_progress', JSON.stringify(progress));
   },
 

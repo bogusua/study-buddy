@@ -170,6 +170,24 @@ html, body {
   letter-spacing: 0.03em;
 }
 
+/* Exam progress bar */
+.exam-progress {
+  height: 3px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.exam-progress.hidden {
+  display: none;
+}
+
+.exam-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
 /* Font size dropdown */
 .font-size-dropdown {
   position: relative;
@@ -396,21 +414,6 @@ html, body {
   opacity: 1;
 }
 
-/* Progress bar */
-.progress-bar-wrap {
-  background: var(--border);
-  border-radius: 4px;
-  height: 4px;
-  margin-top: 8px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: var(--primary);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
 
 /* Typing indicator */
 .typing .bubble {
@@ -764,6 +767,7 @@ html, body {
 }
 
 .settings-dialog {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -900,6 +904,267 @@ html, body {
 
 .settings-save:hover {
   background: var(--primary-dark);
+}
+
+/* Stats modal */
+#stats-modal .settings-dialog {
+  width: 96%;
+  max-width: 96%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.stats-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.stats-empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+}
+
+.stats-subject {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stats-subject-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stats-subject-name {
+  font-weight: 600;
+}
+
+.stats-clear-subject {
+  background: none;
+  border: none;
+  font-size: 0.8em;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.stats-clear-subject:hover {
+  color: var(--wrong);
+  background: color-mix(in srgb, var(--wrong) 8%, transparent);
+}
+
+.stats-clear-btn {
+  align-self: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85em;
+  font-family: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 7px 16px;
+  margin-top: 4px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.stats-clear-btn:hover {
+  color: var(--wrong);
+  border-color: var(--wrong);
+}
+
+.confirm-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-modal.visible {
+  display: flex;
+}
+
+.confirm-dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  width: 80%;
+  max-width: 320px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: var(--msg-font);
+}
+
+.confirm-text {
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.confirm-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.confirm-btn--danger {
+  background: var(--wrong);
+  color: #fff;
+  border: none;
+}
+
+.confirm-btn--danger:hover { opacity: 0.88; }
+
+.confirm-btn--cancel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.confirm-btn--cancel:hover { background: var(--border); }
+
+.stats-divider {
+  font-size: 0.75em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.stats-student {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stats-student-name {
+  font-weight: 600;
+}
+
+.stats-correct { color: var(--correct); font-weight: 600; }
+.stats-wrong   { color: var(--wrong);   font-weight: 600; }
+.stats-skipped { color: var(--text-muted); font-weight: 600; }
+
+.stats-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.stats-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+.stats-summary {
+  display: flex;
+  gap: 6px;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.stats-last {
+  font-size: 0.8em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* SVG chart */
+.stats-chart {
+  width: 100%;
+  display: block;
+}
+
+.stats-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.stats-axis-label {
+  font-size: 9px;
+  fill: var(--text-muted);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.stats-bar {
+  cursor: default;
+  transition: opacity 0.15s;
+}
+
+.stats-bar:hover {
+  opacity: 1 !important;
+}
+
+.stats-tooltip {
+  display: none;
+  position: absolute;
+  background: var(--text);
+  color: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: 0.9em;
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.stats-tooltip.visible {
+  display: block;
+}
+
+.stats-tip-date {
+  font-weight: 600;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding-bottom: 4px;
+}
+
+.stats-tip-row {
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+.stats-tip-row span {
+  opacity: 0.65;
 }
 
 /* Scrollbar */

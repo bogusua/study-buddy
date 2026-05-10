@@ -48,6 +48,7 @@ async function init() {
   UI.init();
   UI.setInputEnabled(false);
   Settings.init();
+  Stats.init();
 
   await Promise.all([loadConfig(), loadSubjects()]);
 
@@ -113,7 +114,7 @@ async function startExam(subjectKey) {
     return;
   }
 
-  Quiz.start(subjectKey, subject.name, questions);
+  Quiz.start(subjectKey, subject.name, questions, config.studentName);
   UI.startStopwatch();
   await askNextQuestion();
 }
@@ -130,10 +131,8 @@ async function askNextQuestion() {
   const isEssay = q.type === 'essay';
   const prefix = isEssay ? `✍️ Завдання ${num}/${total} — есе:` : `Питання ${num}/${total}:`;
 
-  UI.addBot(`${prefix}\n\n${q.question}`, {
-    progress: Quiz.progress(),
-    skipBtn: !isEssay
-  });
+  UI.setProgress(Quiz.progress());
+  UI.addBot(`${prefix}\n\n${q.question}`, { skipBtn: !isEssay });
 
   const answer = await waitForInput();
 
@@ -186,7 +185,7 @@ async function evaluateAnswer(studentAnswer, isSkipped) {
     onScoreUpdate: () => { if (Quiz.session) Quiz.session.correct++; }
   });
 
-  Quiz.recordAnswer(result.correct);
+  Quiz.recordAnswer(result.correct, isSkipped);
   await askNextQuestion();
 }
 
@@ -198,16 +197,15 @@ async function finishExam() {
   };
 
   const elapsed = UI.getStopwatchTime();
+  const elapsedSec = UI.getStopwatchSeconds();
   UI.stopStopwatch();
-  const { correct, total } = Quiz.finish();
+  const { correct, total } = Quiz.finish(elapsedSec);
   const pct = Math.round((correct / total) * 100);
   const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪';
   const nameFin = config.studentName ? `, ${config.studentName}` : '';
 
-  UI.addBot(
-    `${emoji} Іспит завершено${nameFin}!\n\nПравильних відповідей: ${correct} з ${total} (${pct}%)\nЧас: ${elapsed}`,
-    { progress: 1 }
-  );
+  UI.setProgress(1);
+  UI.addBot(`${emoji} Іспит завершено${nameFin}!\n\nПравильних відповідей: ${correct} з ${total} (${pct}%)\nЧас: ${elapsed}`);
 
   UI.enableExplainButtons();
 
