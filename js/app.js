@@ -154,19 +154,26 @@ function checkSettings() {
   if (!config.apiKey) {
     _blockedOnSettings = true;
     UI.addSystem('⚠️ API ключ не налаштовано. Відкрий ⚙️ Налаштування щоб додати ключ.');
+  }
+  if (!config.studentName) {
+    UI.addSystem('💡 Вкажи ім\'я учня в ⚙️ Налаштуваннях — відповіді будуть персоналізованими.');
+  }
+  if (!config.apiKey) {
     Settings.open();
     return false;
   }
   _blockedOnSettings = false;
-  if (!config.studentName) {
-    UI.addSystem('💡 Вкажи ім\'я учня в ⚙️ Налаштуваннях — відповіді будуть персоналізованими.');
-  }
   return true;
 }
 
 async function afterSettingsSaved() {
   if (!_blockedOnSettings) return; // налаштування змінили в звичайному режимі
-  if (!config.apiKey) return;      // ключ досі не вказано
+
+  if (!config.apiKey) {
+    // Зберегли без ключа — нагадуємо (модалку не відкриваємо повторно)
+    UI.addSystem('⚠️ API ключ не налаштовано. Відкрий ⚙️ Налаштування щоб додати ключ.');
+    return;
+  }
 
   _blockedOnSettings = false;
 
