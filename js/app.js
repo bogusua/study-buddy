@@ -332,7 +332,6 @@ async function startWeakExam(subjectKey) {
   }
 
   disableFreeChat();
-  UI.hideHeaderActions();
   lastSubjectKey = subjectKey;
   const subject = subjects[subjectKey];
 
