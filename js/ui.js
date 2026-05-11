@@ -10,6 +10,12 @@ const UI = {
   _stopwatchSeconds: 0,
   _stopwatchVisible: false,
   _actionsVisible: false,
+  _messageLogger: null,
+  _suppressLog: false,
+
+  setMessageLogger(fn) { this._messageLogger = fn; },
+
+  clearMessages() { this.messagesEl.innerHTML = ''; },
 
   init() {
     this.messagesEl = document.getElementById('messages');
@@ -172,6 +178,7 @@ const UI = {
 
   // Bot message bubble
   addBot(text, opts = {}) {
+    if (!this._suppressLog && this._messageLogger) this._messageLogger('bot', text);
     this._removeTyping();
     const msg = document.createElement('div');
     msg.className = 'message bot';
@@ -221,6 +228,7 @@ const UI = {
 
   // Explanation block after answer evaluation
   addExplanation({ text, correct, showDispute, onDispute, onExplain, onTopicChat, onScoreUpdate }) {
+    if (!this._suppressLog && this._messageLogger) this._messageLogger('bot', text);
     this._removeTyping();
     const msg = document.createElement('div');
     msg.className = 'message bot';
@@ -424,6 +432,7 @@ const UI = {
 
   // User message bubble
   addUser(text) {
+    if (!this._suppressLog && this._messageLogger) this._messageLogger('user', text);
     const msg = document.createElement('div');
     msg.className = 'message user';
     const bubble = document.createElement('div');

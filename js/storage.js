@@ -105,5 +105,36 @@ const Storage = {
 
   clearSession() {
     sessionStorage.removeItem('sb_session');
+  },
+
+  // ─── Chat log ────────────────────────────────────────────────────────────────
+
+  getChatLog() {
+    try { return JSON.parse(localStorage.getItem('sb_chat_log')) || []; } catch { return []; }
+  },
+
+  appendChatMessage(msg) {
+    const log = this.getChatLog();
+    log.push(msg);
+    localStorage.setItem('sb_chat_log', JSON.stringify(log.slice(-300)));
+  },
+
+  clearChatLog() {
+    localStorage.removeItem('sb_chat_log');
+  },
+
+  // ─── Session state ───────────────────────────────────────────────────────────
+  // phase: 'subject_selection' | 'exam_active' | 'exam_complete'
+
+  getSessionState() {
+    try { return JSON.parse(localStorage.getItem('sb_session_state')) || null; } catch { return null; }
+  },
+
+  saveSessionState(state) {
+    localStorage.setItem('sb_session_state', JSON.stringify(state));
+  },
+
+  clearSessionState() {
+    localStorage.removeItem('sb_session_state');
   }
 };

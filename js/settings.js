@@ -1,5 +1,6 @@
 const Settings = {
   _modal: null,
+  onSave: null,
 
   init() {
     this._modal = document.getElementById('settings-modal');
@@ -147,5 +148,6 @@ const Settings = {
     Object.assign(config, newConfig);
     this.close();
     UI.addSystem('Налаштування збережено.');
+    if (this.onSave) this.onSave();
   }
 };

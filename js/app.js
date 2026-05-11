@@ -91,15 +91,48 @@ async function init() {
   Stats.init();
   document.getElementById('btn-help').addEventListener('click', showHelp);
 
+  UI.setMessageLogger((type, text) => Storage.appendChatMessage({ type, text }));
+  Settings.onSave = afterSettingsSaved;
+
   await Promise.all([loadConfig(), loadSubjects()]);
 
   if (config.useNano) await Nano.init();
 
+  const chatLog = Storage.getChatLog();
+  if (chatLog.length > 0) {
+    // Відновлюємо чат без логування (лише DOM)
+    UI._suppressLog = true;
+    chatLog.forEach(m => {
+      if (m.type === 'bot') UI.addBot(m.text);
+      else if (m.type === 'user') UI.addUser(m.text);
+    });
+    UI._suppressLog = false;
+
+    // Питаємо — продовжити чи заново (цей меседж не логуємо)
+    UI._suppressLog = true;
+    UI.addBot('Продовжити попередній сеанс чи почати заново?', {
+      buttons: [
+        { label: 'Продовжити', onClick: () => continueSession() },
+        { label: 'Почати заново', onClick: () => freshStart() }
+      ]
+    });
+    UI._suppressLog = false;
+  } else {
+    await freshStart();
+  }
+}
+
+async function freshStart() {
+  Storage.clearChatLog();
+  Storage.clearSessionState();
+  UI.clearMessages();
+
   const nameGreet = config.studentName ? `, ${config.studentName}` : '';
   UI.addBot(`Привіт${nameGreet}! Я Study Buddy 👋\nГотуємось до вступу в ${config.targetGrade} клас. Обирай предмет — і починаємо!`);
 
+  checkSettings();
+
   if (!config.apiKey) {
-    UI.addSystem('⚠️ API key не вказано. Відкрий налаштування і додай його.');
     Settings.open();
     return;
   }
@@ -107,7 +140,63 @@ async function init() {
   await startSubjectSelection();
 }
 
+function checkSettings() {
+  if (!config.apiKey) {
+    UI.addSystem('⚠️ API ключ не налаштовано. Відкрий ⚙️ Налаштування щоб додати ключ.');
+  } else if (!config.studentName) {
+    UI.addSystem('💡 Порада: вкажи ім\'я учня в ⚙️ Налаштуваннях — відповіді будуть персоналізованими.');
+  }
+}
+
+async function afterSettingsSaved() {
+  // Якщо були на самому початку (без чату і стану) і не вистачало API ключа — рухаємось далі
+  const state = Storage.getSessionState();
+  const chatLog = Storage.getChatLog();
+  if (!state && chatLog.length === 0 && config.apiKey) {
+    await startSubjectSelection();
+  }
+}
+
+async function continueSession() {
+  const state = Storage.getSessionState();
+
+  if (!state) {
+    await startSubjectSelection();
+    return;
+  }
+
+  if (state.subjectKey) lastSubjectKey = state.subjectKey;
+  if (state.examContext) lastExamContext = state.examContext;
+
+  if (state.phase === 'exam_complete') {
+    const subject = subjects[state.subjectKey];
+    UI.addSystem(subject ? `Попередній іспит з "${subject.name}" завершено.` : 'Попередній іспит завершено.');
+    const weakTopics = state.subjectKey ? getWeakTopics(state.subjectKey) : [];
+    UI.showHeaderActions(
+      state.subjectKey ? () => startExam(state.subjectKey) : null,
+      () => { disableFreeChat(); UI.hideHeaderActions(); startSubjectSelection(); },
+      weakTopics.length > 0 ? () => startWeakExam(state.subjectKey) : null
+    );
+    if (state.examContext) {
+      UI.addSystem('💬 Можеш запитати про будь-яке питання з іспиту — я поясню.');
+      enableFreeChat();
+    }
+  } else if (state.phase === 'exam_active') {
+    const subject = subjects[state.subjectKey];
+    UI.addSystem(subject ? `Попередній іспит з "${subject.name}" перервався.` : 'Попередній іспит перервався.');
+    UI.showHeaderActions(
+      state.subjectKey ? () => startExam(state.subjectKey) : null,
+      () => { UI.hideHeaderActions(); startSubjectSelection(); },
+      null
+    );
+  } else {
+    await startSubjectSelection();
+  }
+}
+
 async function startSubjectSelection() {
+  Storage.saveSessionState({ phase: 'subject_selection', subjectKey: lastSubjectKey });
+
   const subjectKeys = Object.keys(subjects);
   if (subjectKeys.length === 0) {
     UI.addBot('Не вдалося завантажити предмети. Перевір файли subjects/');
@@ -129,6 +218,7 @@ async function startExam(subjectKey) {
   UI.hideHeaderActions();
   UI.hideStopwatch();
   lastSubjectKey = subjectKey;
+  Storage.saveSessionState({ phase: 'exam_active', subjectKey });
   const subject = subjects[subjectKey];
   const knownGrade = config.targetGrade - 1;
   const eligibleTopics = subject.topics.filter(t => t.grade <= knownGrade);
@@ -238,6 +328,7 @@ async function finishExam() {
     subjectName: Quiz.session.subjectName,
     questions: Quiz.session.questions
   };
+  Storage.saveSessionState({ phase: 'exam_complete', subjectKey: lastSubjectKey, examContext: lastExamContext });
 
   // Зберігаємо до Quiz.finish() який очищає сесію
   const poolQuestions = Quiz.session.questions.filter(q => q.type !== 'essay');
