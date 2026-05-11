@@ -3,6 +3,7 @@ const DEFAULT_CONFIG = {
   model: 'gemini-2.5-flash-lite-preview',
   targetGrade: 8,
   questionsPerSession: 7,
+  essaySize: 'medium',
   useNano: false
 };
 
@@ -104,7 +105,8 @@ async function startExam(subjectKey) {
       subject,
       eligibleTopics,
       config.targetGrade,
-      config.questionsPerSession
+      config.questionsPerSession,
+      config.essaySize
     );
   } catch (err) {
     UI.addBot(`Помилка генерації іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);
@@ -277,7 +279,8 @@ async function _runWeakExam(subjectKey, weakTopics) {
       subject,
       weakTopics,
       config.targetGrade,
-      config.questionsPerSession
+      config.questionsPerSession,
+      config.essaySize
     );
   } catch (err) {
     UI.addBot(`Помилка генерації іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);

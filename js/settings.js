@@ -30,6 +30,7 @@ const Settings = {
     document.getElementById('settings-name').value = config.studentName || '';
     document.getElementById('settings-grade').value = config.targetGrade || 8;
     document.getElementById('settings-questions').value = config.questionsPerSession || 7;
+    document.getElementById('settings-essay-size').value = config.essaySize || 'medium';
     document.getElementById('settings-model').value = config.model || DEFAULT_CONFIG.model;
     document.getElementById('settings-nano').checked = config.useNano || false;
     this._modal.classList.add('visible');
@@ -66,6 +67,7 @@ const Settings = {
       studentName:         document.getElementById('settings-name').value.trim(),
       targetGrade:         parseInt(document.getElementById('settings-grade').value) || 8,
       questionsPerSession: parseInt(document.getElementById('settings-questions').value) || 7,
+      essaySize:           document.getElementById('settings-essay-size').value || 'medium',
       model:               document.getElementById('settings-model').value.trim() || DEFAULT_CONFIG.model,
       useNano:             !document.getElementById('settings-nano').disabled && document.getElementById('settings-nano').checked,
     };

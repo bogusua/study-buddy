@@ -1,13 +1,19 @@
 const Gemini = {
-  async generateExam(apiKey, model, subject, topics, targetGrade, count) {
+  async generateExam(apiKey, model, subject, topics, targetGrade, count, essaySize) {
     const knownGrade = targetGrade - 1;
     const topicList = topics.map(t => t.name).join(', ');
     const hasEssay = !!subject.hasEssay;
     const questionCount = hasEssay ? count - 1 : count;
 
+    const essaySizes = {
+      short:  { range: '8–10',   label: 'невеликий' },
+      medium: { range: '12–15',  label: 'розгорнутий' },
+      long:   { range: '18–22',  label: 'детальний' },
+    };
+    const sz = essaySizes[essaySize] || essaySizes.medium;
     const essayInstruction = hasEssay ? `
-Останнє завдання — есе: вигадай тему для невеликого твору (10–15 речень) відповідного рівня.
-Формат для есе: { "type": "essay", "question": "Напиши есе (10–15 речень) на тему: ...", "answer": "", "hint": "", "topic": "Есе" }` : '';
+Останнє завдання — есе: вигадай цікаву тему для ${sz.label} твору відповідного рівня.
+Формат для есе: { "type": "essay", "question": "Напиши есе (${sz.range} речень) на тему: «...». Структуруй твір: вступ, основна думка, висновок.", "answer": "", "hint": "", "topic": "Есе" }` : '';
 
     const prompt = `Ти екзаменатор, який приймає вступний іспит до ${targetGrade} класу ліцею.
 Предмет: ${subject.name}.
