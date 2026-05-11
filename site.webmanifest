@@ -2,7 +2,7 @@
   "name": "Study Buddy",
   "short_name": "Study Buddy",
   "description": "Тренажер для підготовки до вступних іспитів у ліцей",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f6ef7",

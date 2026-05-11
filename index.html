@@ -210,7 +210,7 @@
   <script>
     // Service Worker — тільки в веб-режимі (не в Chrome Extension)
     if ('serviceWorker' in navigator && (typeof chrome === 'undefined' || !chrome.runtime?.getURL)) {
-      navigator.serviceWorker.register('/sw.js').then(reg => {
+      navigator.serviceWorker.register('./sw.js').then(reg => {
         reg.addEventListener('updatefound', () => {
           const newSW = reg.installing;
           newSW.addEventListener('statechange', () => {
