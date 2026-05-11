@@ -483,7 +483,7 @@ const UI = {
   setInputEnabled(enabled) {
     this.inputEl.disabled = !enabled;
     this.sendBtn.disabled = !enabled;
-    if (enabled) this.inputEl.focus();
+    if (enabled && !('ontouchstart' in window)) this.inputEl.focus();
   },
 
   clearInput() {
