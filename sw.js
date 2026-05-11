@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1.1.1';
+const CACHE_VERSION = 'v1.1.2';
 const CACHE_NAME = `study-buddy-${CACHE_VERSION}`;
 
 const CACHE_FILES = [
