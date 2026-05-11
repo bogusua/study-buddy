@@ -219,6 +219,7 @@ async function startExam(subjectKey) {
   UI.hideStopwatch();
   lastSubjectKey = subjectKey;
   Storage.saveSessionState({ phase: 'exam_active', subjectKey });
+  UI.lockHeader();
   const subject = subjects[subjectKey];
   const knownGrade = config.targetGrade - 1;
   const eligibleTopics = subject.topics.filter(t => t.grade <= knownGrade);
@@ -240,6 +241,7 @@ async function startExam(subjectKey) {
       questions.push(essay);
     }
   } catch (err) {
+    UI.unlockHeader();
     UI.addBot(`Помилка підготовки іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);
     UI.addBot('Спробувати ще раз?', {
       buttons: [{ label: 'Так', onClick: () => startExam(subjectKey) }]
@@ -348,6 +350,7 @@ async function finishExam() {
   UI.setProgress(1);
   UI.addBot(`${emoji} Іспит завершено${nameFin}!\n\nПравильних відповідей: ${correct} з ${total} (${pct}%)\nЧас: ${elapsed}`);
 
+  UI.unlockHeader();
   UI.enableExplainButtons();
 
   const weakTopics = getWeakTopics(lastSubjectKey);

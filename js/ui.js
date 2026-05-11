@@ -17,6 +17,26 @@ const UI = {
 
   clearMessages() { this.messagesEl.innerHTML = ''; },
 
+  lockHeader() {
+    ['btn-help', 'btn-stats', 'btn-settings'].forEach(id => {
+      const btn = document.getElementById(id);
+      btn.disabled = true;
+      btn.title = 'Недоступно під час іспиту';
+    });
+  },
+
+  unlockHeader() {
+    [
+      ['btn-help', 'Довідка'],
+      ['btn-stats', 'Статистика'],
+      ['btn-settings', 'Налаштування'],
+    ].forEach(([id, title]) => {
+      const btn = document.getElementById(id);
+      btn.disabled = false;
+      btn.title = title;
+    });
+  },
+
   init() {
     this.messagesEl = document.getElementById('messages');
     this.inputEl = document.getElementById('user-input');
