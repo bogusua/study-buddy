@@ -13,6 +13,8 @@ let lastSubjectKey = null;
 let lastExamContext = null;
 let freeChatActive = false;
 let helpChatActive = false;
+let _blockedOnSettings = false;
+let _continueOnUnblock = false;
 
 const HELP_TEXT = `Study Buddy — довідка
 
@@ -132,29 +134,40 @@ async function freshStart() {
   const nameGreet = config.studentName ? `, ${config.studentName}` : '';
   UI.addBot(`Привіт${nameGreet}! Я Study Buddy 👋\nГотуємось до вступу в ${config.targetGrade} клас. Обирай предмет — і починаємо!`);
 
-  checkSettings();
-
-  if (!config.apiKey) {
-    Settings.open();
-    return;
-  }
-
+  _continueOnUnblock = false;
+  if (!checkSettings()) return;
   await startSubjectSelection();
 }
 
+// Повертає true якщо можна рухатись далі, false якщо заблоковано на ключі
 function checkSettings() {
   if (!config.apiKey) {
+    _blockedOnSettings = true;
     UI.addSystem('⚠️ API ключ не налаштовано. Відкрий ⚙️ Налаштування щоб додати ключ.');
-  } else if (!config.studentName) {
-    UI.addSystem('💡 Порада: вкажи ім\'я учня в ⚙️ Налаштуваннях — відповіді будуть персоналізованими.');
+    Settings.open();
+    return false;
   }
+  _blockedOnSettings = false;
+  if (!config.studentName) {
+    UI.addSystem('💡 Вкажи ім\'я учня в ⚙️ Налаштуваннях — відповіді будуть персоналізованими.');
+  }
+  return true;
 }
 
 async function afterSettingsSaved() {
-  // Якщо були на самому початку (без чату і стану) і не вистачало API ключа — рухаємось далі
-  const state = Storage.getSessionState();
-  const chatLog = Storage.getChatLog();
-  if (!state && chatLog.length === 0 && config.apiKey) {
+  if (!_blockedOnSettings) return; // налаштування змінили в звичайному режимі
+  if (!config.apiKey) return;      // ключ досі не вказано
+
+  _blockedOnSettings = false;
+
+  if (!config.studentName) {
+    UI.addSystem('💡 Вкажи ім\'я учня в ⚙️ Налаштуваннях — відповіді будуть персоналізованими.');
+  }
+
+  if (_continueOnUnblock) {
+    _continueOnUnblock = false;
+    await _proceedAfterSettings(Storage.getSessionState());
+  } else {
     await startSubjectSelection();
   }
 }
@@ -162,20 +175,35 @@ async function afterSettingsSaved() {
 async function continueSession() {
   const state = Storage.getSessionState();
 
-  if (!state) {
+  if (state?.subjectKey) lastSubjectKey = state.subjectKey;
+  if (state?.examContext) lastExamContext = state.examContext;
+
+  // Показуємо статус попередньої сесії
+  if (state?.phase === 'exam_complete') {
+    const subject = subjects[state.subjectKey];
+    UI.addSystem(subject ? `Попередній іспит з "${subject.name}" завершено.` : 'Попередній іспит завершено.');
+  } else if (state?.phase === 'exam_active') {
+    const subject = subjects[state?.subjectKey];
+    UI.addSystem(subject ? `Попередній іспит з "${subject.name}" перервався.` : 'Попередній іспит перервався.');
+  }
+
+  _continueOnUnblock = true;
+  if (!checkSettings()) return;
+  _continueOnUnblock = false;
+
+  await _proceedAfterSettings(state);
+}
+
+async function _proceedAfterSettings(state) {
+  if (!state || state.phase === 'subject_selection' || !state.subjectKey) {
     await startSubjectSelection();
     return;
   }
 
-  if (state.subjectKey) lastSubjectKey = state.subjectKey;
-  if (state.examContext) lastExamContext = state.examContext;
-
   if (state.phase === 'exam_complete') {
-    const subject = subjects[state.subjectKey];
-    UI.addSystem(subject ? `Попередній іспит з "${subject.name}" завершено.` : 'Попередній іспит завершено.');
-    const weakTopics = state.subjectKey ? getWeakTopics(state.subjectKey) : [];
+    const weakTopics = getWeakTopics(state.subjectKey);
     UI.showHeaderActions(
-      state.subjectKey ? () => startExam(state.subjectKey) : null,
+      () => startExam(state.subjectKey),
       () => { disableFreeChat(); UI.hideHeaderActions(); startSubjectSelection(); },
       weakTopics.length > 0 ? () => startWeakExam(state.subjectKey) : null
     );
@@ -184,10 +212,8 @@ async function continueSession() {
       enableFreeChat();
     }
   } else if (state.phase === 'exam_active') {
-    const subject = subjects[state.subjectKey];
-    UI.addSystem(subject ? `Попередній іспит з "${subject.name}" перервався.` : 'Попередній іспит перервався.');
     UI.showHeaderActions(
-      state.subjectKey ? () => startExam(state.subjectKey) : null,
+      () => startExam(state.subjectKey),
       () => { UI.hideHeaderActions(); startSubjectSelection(); },
       null
     );
