@@ -50,6 +50,26 @@ const Storage = {
     localStorage.setItem('sb_progress', JSON.stringify(progress));
   },
 
+  getPool(subjectKey, targetGrade) {
+    try {
+      return JSON.parse(localStorage.getItem(`sb_pool_${subjectKey}_g${targetGrade}`)) || null;
+    } catch { return null; }
+  },
+
+  savePool(subjectKey, targetGrade, pool) {
+    localStorage.setItem(`sb_pool_${subjectKey}_g${targetGrade}`, JSON.stringify(pool));
+  },
+
+  clearPool(subjectKey, targetGrade) {
+    localStorage.removeItem(`sb_pool_${subjectKey}_g${targetGrade}`);
+  },
+
+  clearAllPools() {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('sb_pool_'))
+      .forEach(k => localStorage.removeItem(k));
+  },
+
   getSession() {
     try {
       return JSON.parse(sessionStorage.getItem('sb_session')) || null;

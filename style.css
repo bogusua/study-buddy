@@ -903,6 +903,60 @@ html, body {
   display: none;
 }
 
+.settings-pool-section {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-pool-title {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.settings-pool-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-pool-text {
+  flex: 1;
+  font-size: 0.9em;
+}
+
+.settings-pool-empty {
+  color: var(--text-muted);
+}
+
+.settings-pool-reset {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8em;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 8px;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.settings-pool-reset:hover:not(:disabled) {
+  color: var(--wrong);
+  border-color: var(--wrong);
+}
+
+.settings-pool-reset:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .settings-save {
   padding: 10px;
   border: none;

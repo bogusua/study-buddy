@@ -90,7 +90,6 @@ async function startExam(subjectKey) {
   lastSubjectKey = subjectKey;
   const subject = subjects[subjectKey];
   const knownGrade = config.targetGrade - 1;
-
   const eligibleTopics = subject.topics.filter(t => t.grade <= knownGrade);
 
   UI.addUser(subject.name);
@@ -99,17 +98,18 @@ async function startExam(subjectKey) {
 
   let questions;
   try {
-    questions = await Gemini.generateExam(
-      config.apiKey,
-      config.model,
-      subject,
-      eligibleTopics,
-      config.targetGrade,
-      config.questionsPerSession,
-      config.essaySize
-    );
+    const pool = await ensurePool(subjectKey, subject, eligibleTopics);
+    const regularCount = subject.hasEssay ? config.questionsPerSession - 1 : config.questionsPerSession;
+    questions = pickFromPool(pool.questions, regularCount);
+
+    if (subject.hasEssay) {
+      const essay = await Gemini.generateEssayQuestion(
+        config.apiKey, config.model, subject, config.targetGrade, config.essaySize
+      );
+      questions.push(essay);
+    }
   } catch (err) {
-    UI.addBot(`Помилка генерації іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);
+    UI.addBot(`Помилка підготовки іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);
     UI.addBot('Спробувати ще раз?', {
       buttons: [{ label: 'Так', onClick: () => startExam(subjectKey) }]
     });
@@ -198,6 +198,10 @@ async function finishExam() {
     questions: Quiz.session.questions
   };
 
+  // Інкрементуємо usedCount для питань з пулу (есе не пулимо)
+  const poolQuestions = Quiz.session.questions.filter(q => q.type !== 'essay');
+  updatePoolUsedCounts(lastSubjectKey, poolQuestions);
+
   const elapsed = UI.getStopwatchTime();
   const elapsedSec = UI.getStopwatchSeconds();
   UI.stopStopwatch();
@@ -222,6 +226,81 @@ async function finishExam() {
 
   UI.addSystem('💬 Можеш запитати про будь-яке питання з іспиту — я поясню.');
   enableFreeChat();
+}
+
+// ─── Question pool ───────────────────────────────────────────────────────────
+
+function isPoolExhausted(pool) {
+  return pool.questions.length > 0 && pool.questions.every(q => q.usedCount >= 3);
+}
+
+function pickFromPool(questions, count) {
+  const groups = {};
+  questions.forEach((q, idx) => {
+    if (!groups[q.usedCount]) groups[q.usedCount] = [];
+    groups[q.usedCount].push(idx);
+  });
+
+  const sortedCounts = Object.keys(groups).map(Number).sort((a, b) => a - b);
+  const selected = [];
+
+  for (const cnt of sortedCounts) {
+    if (selected.length >= count) break;
+    const arr = groups[cnt];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    selected.push(...arr.slice(0, count - selected.length));
+  }
+
+  // Final shuffle
+  for (let i = selected.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [selected[i], selected[j]] = [selected[j], selected[i]];
+  }
+
+  return selected.map(idx => questions[idx]);
+}
+
+async function ensurePool(subjectKey, subject, eligibleTopics) {
+  const POOL_SIZE = config.questionsPerSession * 10;
+  let pool = Storage.getPool(subjectKey, config.targetGrade);
+
+  if (!pool) {
+    const questions = await Gemini.generatePool(
+      config.apiKey, config.model, subject, eligibleTopics, config.targetGrade, POOL_SIZE, []
+    );
+    pool = { questions: questions.map(q => ({ ...q, usedCount: 0 })), resetDone: false };
+    Storage.savePool(subjectKey, config.targetGrade, pool);
+    return pool;
+  }
+
+  if (isPoolExhausted(pool)) {
+    if (!pool.resetDone) {
+      pool.questions.forEach(q => q.usedCount = 0);
+      pool.resetDone = true;
+      Storage.savePool(subjectKey, config.targetGrade, pool);
+    } else {
+      const existingTexts = pool.questions.map(q => q.question);
+      const newQuestions = await Gemini.generatePool(
+        config.apiKey, config.model, subject, eligibleTopics, config.targetGrade, POOL_SIZE, existingTexts
+      );
+      newQuestions.forEach(q => pool.questions.push({ ...q, usedCount: 0 }));
+      pool.resetDone = false;
+      Storage.savePool(subjectKey, config.targetGrade, pool);
+    }
+  }
+
+  return pool;
+}
+
+function updatePoolUsedCounts(subjectKey, usedQuestions) {
+  const pool = Storage.getPool(subjectKey, config.targetGrade);
+  if (!pool) return;
+  const usedTexts = new Set(usedQuestions.map(q => q.question));
+  pool.questions.forEach(q => { if (usedTexts.has(q.question)) q.usedCount++; });
+  Storage.savePool(subjectKey, config.targetGrade, pool);
 }
 
 // ─── Weak topics ─────────────────────────────────────────────────────────────
@@ -273,14 +352,14 @@ async function _runWeakExam(subjectKey, weakTopics) {
 
   let questions;
   try {
-    questions = await Gemini.generateExam(
+    questions = await Gemini.generatePool(
       config.apiKey,
       config.model,
       subject,
       weakTopics,
       config.targetGrade,
       config.questionsPerSession,
-      config.essaySize
+      []
     );
   } catch (err) {
     UI.addBot(`Помилка генерації іспиту: ${err.message}\n\nПеревір API key і спробуй ще раз.`);

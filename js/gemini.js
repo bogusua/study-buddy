@@ -30,6 +30,50 @@ const Gemini = {
     return JSON.parse(text);
   },
 
+  async generatePool(apiKey, model, subject, topics, targetGrade, count, existingQuestions) {
+    const knownGrade = targetGrade - 1;
+    const topicList = topics.map(t => t.name).join(', ');
+    const avoidSection = existingQuestions && existingQuestions.length > 0
+      ? `\nНЕ повторюй і не перефразовуй ці питання:\n${existingQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}\n`
+      : '';
+
+    const prompt = `Ти екзаменатор, який приймає вступний іспит до ${targetGrade} класу ліцею.
+Предмет: ${subject.name}.
+Доступні теми (програма 1–${knownGrade} класів): ${topicList}.
+
+Склади ${count} різноманітних відкритих питань для підготовки до іспиту.
+Рівень: сильний фізмат ліцей, без простих завдань, частина питань — логічні або нестандартні.
+Вибери теми рівномірно з усіх розділів, уникай повторів формулювань.${avoidSection}
+
+Відповідь — лише JSON масив без будь-якого іншого тексту:
+[{ "type": "question", "question": "...", "answer": "...", "hint": "...", "topic": "назва теми" }]
+Питання українською мовою.`;
+
+    const text = await this._call(apiKey, model, prompt);
+    return JSON.parse(text);
+  },
+
+  async generateEssayQuestion(apiKey, model, subject, targetGrade, essaySize) {
+    const knownGrade = targetGrade - 1;
+    const essaySizes = {
+      short:  { range: '8–10',  label: 'невеликий' },
+      medium: { range: '12–15', label: 'розгорнутий' },
+      long:   { range: '18–22', label: 'детальний' },
+    };
+    const sz = essaySizes[essaySize] || essaySizes.medium;
+
+    const prompt = `Ти екзаменатор, який приймає вступний іспит до ${targetGrade} класу ліцею.
+Предмет: ${subject.name}.
+
+Вигадай цікаву тему для ${sz.label} твору для учня який закінчує ${knownGrade} клас.
+
+Відповідь — лише JSON без будь-якого іншого тексту:
+{ "type": "essay", "question": "Напиши есе (${sz.range} речень) на тему: «...». Структуруй твір: вступ, основна думка, висновок.", "answer": "", "hint": "", "topic": "Есе" }`;
+
+    const text = await this._call(apiKey, model, prompt);
+    return JSON.parse(text);
+  },
+
   async checkAnswer(apiKey, model, question, expectedAnswer, studentAnswer, targetGrade, studentName) {
     const knownGrade = targetGrade - 1;
     const nameCtx = studentName ? ` Звертайся до учня на ім'я ${studentName}.` : '';

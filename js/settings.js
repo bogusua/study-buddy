@@ -33,6 +33,7 @@ const Settings = {
     document.getElementById('settings-essay-size').value = config.essaySize || 'medium';
     document.getElementById('settings-model').value = config.model || DEFAULT_CONFIG.model;
     document.getElementById('settings-nano').checked = config.useNano || false;
+    this._renderPoolInfo();
     this._modal.classList.add('visible');
     this._checkNanoAvailability();
   },
@@ -59,6 +60,41 @@ const Settings = {
 
   close() {
     this._modal.classList.remove('visible');
+  },
+
+  _renderPoolInfo() {
+    const container = document.getElementById('settings-pool-info');
+    container.innerHTML = '';
+
+    Object.entries(subjects).forEach(([key, subject]) => {
+      const pool = Storage.getPool(key, config.targetGrade);
+      const row = document.createElement('div');
+      row.className = 'settings-pool-row';
+
+      const info = document.createElement('span');
+      info.className = 'settings-pool-text';
+      if (pool) {
+        const inRotation = pool.questions.filter(q => q.usedCount < 3).length;
+        info.textContent = `${subject.name}: ${pool.questions.length} питань (${inRotation} в ротації)`;
+      } else {
+        info.textContent = `${subject.name}: немає`;
+        info.classList.add('settings-pool-empty');
+      }
+
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'settings-pool-reset';
+      resetBtn.textContent = 'Скинути';
+      resetBtn.disabled = !pool;
+      resetBtn.addEventListener('click', () => {
+        Storage.clearPool(key, config.targetGrade);
+        this._renderPoolInfo();
+      });
+
+      row.appendChild(info);
+      row.appendChild(resetBtn);
+      container.appendChild(row);
+    });
   },
 
   save() {
