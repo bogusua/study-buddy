@@ -957,6 +957,58 @@ html, body {
   cursor: default;
 }
 
+.settings-appearance {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.settings-appearance-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-appearance-label {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  width: 3.5em;
+}
+
+.settings-seg {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.settings-seg-btn {
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 0.85em;
+  padding: 4px 12px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.settings-seg-btn:last-child { border-right: none; }
+
+.settings-seg-btn--active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.settings-seg-btn:not(.settings-seg-btn--active):hover {
+  background: var(--border);
+}
+
 .settings-save {
   padding: 10px;
   border: none;

@@ -36,15 +36,7 @@ const UI = {
   _initTheme() {
     const saved = localStorage.getItem('sb_theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = saved ? saved === 'dark' : prefersDark;
-    this._applyTheme(isDark);
-
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme') === 'dark';
-      this._applyTheme(!current);
-      localStorage.setItem('sb_theme', !current ? 'dark' : 'light');
-    });
-
+    this._applyTheme(saved ? saved === 'dark' : prefersDark);
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       if (!localStorage.getItem('sb_theme')) this._applyTheme(e.matches);
     });
@@ -54,36 +46,30 @@ const UI = {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   },
 
+  setTheme(dark) {
+    this._applyTheme(dark);
+    localStorage.setItem('sb_theme', dark ? 'dark' : 'light');
+  },
+
+  isDarkTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  },
+
   _initFontSize() {
-    const saved = localStorage.getItem('sb_font') || 'small';
-    this._applyFontSize(saved);
-
-    const trigger = document.getElementById('font-size-trigger');
-    const menu = document.getElementById('font-size-menu');
-
-    trigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      menu.classList.toggle('open');
-    });
-
-    document.querySelectorAll('.font-size-option').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this._applyFontSize(btn.dataset.size);
-        localStorage.setItem('sb_font', btn.dataset.size);
-        menu.classList.remove('open');
-      });
-    });
-
-    document.addEventListener('click', () => menu.classList.remove('open'));
+    this._applyFontSize(localStorage.getItem('sb_font') || 'small');
   },
 
   _applyFontSize(size) {
     document.documentElement.setAttribute('data-font', size);
-    const sizes = { small: '11px', medium: '14px', large: '17px' };
-    document.getElementById('font-size-trigger').style.fontSize = sizes[size];
-    document.querySelectorAll('.font-size-option').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.size === size);
-    });
+  },
+
+  setFontSize(size) {
+    this._applyFontSize(size);
+    localStorage.setItem('sb_font', size);
+  },
+
+  getCurrentFontSize() {
+    return localStorage.getItem('sb_font') || 'small';
   },
 
   _updateSubheader() {
@@ -141,7 +127,9 @@ const UI = {
   },
 
   showHeaderActions(onNewExam, onChangeSubject, onWeakExam) {
-    document.getElementById('btn-new-exam').onclick = onNewExam;
+    const newExamBtn = document.getElementById('btn-new-exam');
+    newExamBtn.onclick = onNewExam || null;
+    newExamBtn.disabled = !onNewExam;
     document.getElementById('btn-change-subject').onclick = onChangeSubject;
     const weakBtn = document.getElementById('btn-weak-exam');
     if (onWeakExam) {
@@ -157,6 +145,7 @@ const UI = {
 
   hideHeaderActions() {
     document.getElementById('exam-btns').classList.remove('visible');
+    document.getElementById('btn-new-exam').disabled = false;
     document.getElementById('btn-weak-exam').classList.add('hidden');
     this._actionsVisible = false;
     this._updateSubheader();

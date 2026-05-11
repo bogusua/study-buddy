@@ -24,6 +24,7 @@ const Settings = {
   },
 
   open() {
+    this._initAppearance();
     document.getElementById('settings-apikey').value = config.apiKey || '';
     document.getElementById('settings-apikey').type = 'password';
     document.getElementById('settings-apikey-toggle').textContent = 'Показати';
@@ -36,6 +37,29 @@ const Settings = {
     this._renderPoolInfo();
     this._modal.classList.add('visible');
     this._checkNanoAvailability();
+  },
+
+  _initAppearance() {
+    const isDark = UI.isDarkTheme();
+    const currentFont = UI.getCurrentFontSize();
+
+    document.querySelectorAll('#settings-theme-seg .settings-seg-btn').forEach(btn => {
+      btn.classList.toggle('settings-seg-btn--active', btn.dataset.theme === (isDark ? 'dark' : 'light'));
+      btn.onclick = () => {
+        UI.setTheme(btn.dataset.theme === 'dark');
+        document.querySelectorAll('#settings-theme-seg .settings-seg-btn')
+          .forEach(b => b.classList.toggle('settings-seg-btn--active', b === btn));
+      };
+    });
+
+    document.querySelectorAll('#settings-font-seg .settings-seg-btn').forEach(btn => {
+      btn.classList.toggle('settings-seg-btn--active', btn.dataset.size === currentFont);
+      btn.onclick = () => {
+        UI.setFontSize(btn.dataset.size);
+        document.querySelectorAll('#settings-font-seg .settings-seg-btn')
+          .forEach(b => b.classList.toggle('settings-seg-btn--active', b === btn));
+      };
+    });
   },
 
   async _checkNanoAvailability() {

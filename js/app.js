@@ -48,7 +48,7 @@ API ключ Gemini, ім'я учня, клас вступу, питань за 
 Банк питань — кількість питань у пулі, кнопка скидання.
 
 БАНК ПИТАНЬ
-Питання генеруються наперед (~70 штук) і перемішуються щоразу.
+Питання генеруються наперед (кількість питань у сесії × 10) і перемішуються щоразу.
 Кожне питання показується не більше 3 разів, після чого банк поповнюється новими питаннями.
 Есе генерується свіже щоразу.`;
 
@@ -414,6 +414,15 @@ function showHelp() {
   UI.addSystem('💬 Можеш запитати про будь-що з довідки — відповім.');
   disableFreeChat();
   enableHelpChat();
+
+  // Показуємо кнопки навігації: новий іспит (disabled якщо ще не було) і зміна предмету
+  const { history } = Storage.getProgress();
+  const hasExams = lastSubjectKey && history.some(r => r.subject === lastSubjectKey);
+  UI.showHeaderActions(
+    hasExams ? () => startExam(lastSubjectKey) : null,
+    () => { disableHelpChat(); UI.hideHeaderActions(); startSubjectSelection(); },
+    null
+  );
 }
 
 function enableHelpChat() {
