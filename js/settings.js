@@ -40,13 +40,13 @@ const Settings = {
   },
 
   _initAppearance() {
-    const isDark = UI.isDarkTheme();
+    const currentTheme = UI.getThemeSetting();
     const currentFont = UI.getCurrentFontSize();
 
     document.querySelectorAll('#settings-theme-seg .settings-seg-btn').forEach(btn => {
-      btn.classList.toggle('settings-seg-btn--active', btn.dataset.theme === (isDark ? 'dark' : 'light'));
+      btn.classList.toggle('settings-seg-btn--active', btn.dataset.theme === currentTheme);
       btn.onclick = () => {
-        UI.setTheme(btn.dataset.theme === 'dark');
+        UI.setTheme(btn.dataset.theme);
         document.querySelectorAll('#settings-theme-seg .settings-seg-btn')
           .forEach(b => b.classList.toggle('settings-seg-btn--active', b === btn));
       };

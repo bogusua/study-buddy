@@ -46,9 +46,19 @@ const UI = {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   },
 
-  setTheme(dark) {
-    this._applyTheme(dark);
-    localStorage.setItem('sb_theme', dark ? 'dark' : 'light');
+  setTheme(value) {
+    // value: 'light' | 'dark' | 'system'
+    if (value === 'system') {
+      localStorage.removeItem('sb_theme');
+      this._applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    } else {
+      localStorage.setItem('sb_theme', value);
+      this._applyTheme(value === 'dark');
+    }
+  },
+
+  getThemeSetting() {
+    return localStorage.getItem('sb_theme') || 'system';
   },
 
   isDarkTheme() {

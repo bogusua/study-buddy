@@ -923,6 +923,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 1px 0;
 }
 
 .settings-pool-text {
@@ -1008,6 +1009,10 @@ html, body {
 .settings-seg-btn:not(.settings-seg-btn--active):hover {
   background: var(--border);
 }
+
+.settings-seg-btn--font-s { font-size: 0.75em; }
+.settings-seg-btn--font-m { font-size: 1em; }
+.settings-seg-btn--font-l { font-size: 1.25em; }
 
 .settings-save {
   padding: 10px;
