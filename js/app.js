@@ -12,6 +12,45 @@ let subjects = {};
 let lastSubjectKey = null;
 let lastExamContext = null;
 let freeChatActive = false;
+let helpChatActive = false;
+
+const HELP_TEXT = `Study Buddy — довідка
+
+ЯК ПОЧАТИ
+Обери предмет → отримай іспит → відповідай текстом → Gemini оцінює кожну відповідь.
+
+ПІД ЧАС ІСПИТУ
+• Відповідай своїми словами у полі знизу
+• Enter — надіслати, Shift+Enter — новий рядок
+• "далі →" — пропустити питання (рахується як помилка)
+• "Не згоден" — оскаржити оцінку з аргументом
+• "Поясни детальніше" — розгорнуте пояснення (активується після іспиту)
+• Таймер і прогрес-бар у рядку під шапкою
+
+ПІСЛЯ ІСПИТУ
+• "Новий іспит" — ще раз той самий предмет
+• "Слабкі теми" — іспит тільки по темах де є помилки (з'являється коли набирається статистика)
+• "Змінити предмет" — вибрати інший предмет
+• Чат залишається активним — можна запитати про будь-яке питання з іспиту
+
+СЛАБКІ ТЕМИ
+Тема вважається слабкою якщо правильних відповідей менше 75% (мінімум 3 відповіді по темі).
+Режим генерує іспит саме по цих темах. Результати впливають на оцінку теми.
+
+СТАТИСТИКА (кнопка 📊)
+• Вкладка "Іспити" — графік результатів по сесіях
+• Вкладка "Теми" — прогрес по кожній темі з порогом 75%
+• Секція "По учнях" — результати в розрізі імен
+• Кнопки очищення по предмету або повністю
+
+НАЛАШТУВАННЯ (кнопка ⚙️)
+API ключ Gemini, ім'я учня, клас вступу, питань за сесію, розмір есе, модель, Gemini Nano.
+Банк питань — кількість питань у пулі, кнопка скидання.
+
+БАНК ПИТАНЬ
+Питання генеруються наперед (~70 штук) і перемішуються щоразу.
+Кожне питання показується не більше 3 разів, після чого банк поповнюється новими питаннями.
+Есе генерується свіже щоразу.`;
 
 async function loadConfig() {
   // 1. localStorage має пріоритет
@@ -50,6 +89,7 @@ async function init() {
   UI.setInputEnabled(false);
   Settings.init();
   Stats.init();
+  document.getElementById('btn-help').addEventListener('click', showHelp);
 
   await Promise.all([loadConfig(), loadSubjects()]);
 
@@ -85,6 +125,7 @@ async function startSubjectSelection() {
 
 async function startExam(subjectKey) {
   disableFreeChat();
+  disableHelpChat();
   UI.hideHeaderActions();
   UI.hideStopwatch();
   lastSubjectKey = subjectKey;
@@ -364,6 +405,55 @@ async function _runWeakExam(subjectKey, weakTopics) {
   Quiz.start(subjectKey, subject.name, questions, config.studentName);
   UI.startStopwatch();
   await askNextQuestion();
+}
+
+// ─── Help ────────────────────────────────────────────────────────────────────
+
+function showHelp() {
+  UI.addBot(HELP_TEXT);
+  UI.addSystem('💬 Можеш запитати про будь-що з довідки — відповім.');
+  disableFreeChat();
+  enableHelpChat();
+}
+
+function enableHelpChat() {
+  helpChatActive = true;
+  UI.setInputEnabled(true);
+  UI.clearInput();
+
+  const handler = async () => {
+    if (!helpChatActive) return;
+    const val = UI.getInput();
+    if (!val) return;
+    UI.addUser(val);
+    UI.clearInput();
+    UI.setInputEnabled(false);
+    UI.showTyping();
+    try {
+      const reply = await Gemini.helpChat(config.apiKey, config.model, HELP_TEXT, val);
+      UI.addBot(reply);
+    } catch (err) {
+      UI.addBot(`Помилка: ${err.message}`);
+    }
+    if (helpChatActive) UI.setInputEnabled(true);
+  };
+
+  const keyHandler = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handler(); }
+  };
+
+  UI.sendBtn.addEventListener('click', handler);
+  UI.inputEl.addEventListener('keydown', keyHandler);
+  UI._helpChatHandlers = { click: handler, key: keyHandler };
+}
+
+function disableHelpChat() {
+  helpChatActive = false;
+  if (UI._helpChatHandlers) {
+    UI.sendBtn.removeEventListener('click', UI._helpChatHandlers.click);
+    UI.inputEl.removeEventListener('keydown', UI._helpChatHandlers.key);
+    UI._helpChatHandlers = null;
+  }
 }
 
 // ─── Free chat ───────────────────────────────────────────────────────────────

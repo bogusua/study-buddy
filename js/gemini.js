@@ -173,6 +173,20 @@ ${questionList}
     return JSON.parse(text).reply;
   },
 
+  async helpChat(apiKey, model, docText, question) {
+    const prompt = `Ти асистент додатку Study Buddy — програми для підготовки до вступного іспиту в ліцей.
+Ось документація додатку:
+${docText}
+
+Питання користувача: ${question}
+
+Відповідай коротко і по суті, виключно про функціональність цього додатку.
+Відповідь — лише JSON: { "reply": "..." }
+Відповідь українською.`;
+    const text = await this._call(apiKey, model, prompt);
+    return JSON.parse(text).reply;
+  },
+
   async _call(apiKey, model, prompt) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
