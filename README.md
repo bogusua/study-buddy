@@ -24,7 +24,7 @@
 ### Веб / PWA
 Відкрий у браузері або встанови як додаток на комп'ютер, телефон чи планшет:
 
-👉 **[study-buddy URL]**
+👉 **[bogusua.github.io/study-buddy](https://bogusua.github.io/study-buddy/)**
 
 ### Chrome Extension (Side Panel)
 1. Завантаж або склонуй репозиторій
