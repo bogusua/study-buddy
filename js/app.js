@@ -198,9 +198,12 @@ async function finishExam() {
     questions: Quiz.session.questions
   };
 
-  // Інкрементуємо usedCount для питань з пулу (есе не пулимо)
+  // Зберігаємо до Quiz.finish() який очищає сесію
   const poolQuestions = Quiz.session.questions.filter(q => q.type !== 'essay');
+  const questionResults = [...Quiz.session.questionResults];
+
   updatePoolUsedCounts(lastSubjectKey, poolQuestions);
+  Storage.updateTopicScores(lastSubjectKey, config.targetGrade, questionResults);
 
   const elapsed = UI.getStopwatchTime();
   const elapsedSec = UI.getStopwatchSeconds();
@@ -215,9 +218,7 @@ async function finishExam() {
 
   UI.enableExplainButtons();
 
-  const { history } = Storage.getProgress();
-  const subjectExamCount = history.filter(r => r.subject === lastSubjectKey).length;
-  const weakTopics = subjectExamCount >= 5 ? getWeakTopics(lastSubjectKey) : [];
+  const weakTopics = getWeakTopics(lastSubjectKey);
   UI.showHeaderActions(
     () => startExam(lastSubjectKey),
     () => { disableFreeChat(); UI.hideHeaderActions(); startSubjectSelection(); },
@@ -305,22 +306,14 @@ function updatePoolUsedCounts(subjectKey, usedQuestions) {
 
 // ─── Weak topics ─────────────────────────────────────────────────────────────
 
+const WEAK_THRESHOLD = 0.75;
+const WEAK_MIN_ANSWERS = 3;
+
 function getWeakTopics(subjectKey) {
-  const { history } = Storage.getProgress();
-  const topicStats = {};
-  history
-    .filter(r => r.subject === subjectKey)
-    .forEach(r => {
-      (r.questionResults || []).forEach(qr => {
-        if (!qr.topic) return;
-        if (!topicStats[qr.topic]) topicStats[qr.topic] = { wrong: 0, total: 0 };
-        topicStats[qr.topic].total++;
-        if (!qr.correct) topicStats[qr.topic].wrong++;  // wrong або skipped
-      });
-    });
-  return Object.entries(topicStats)
-    .filter(([, s]) => s.wrong > 0)
-    .sort((a, b) => (b[1].wrong / b[1].total) - (a[1].wrong / a[1].total))
+  const scores = Storage.getTopicScores(subjectKey, config.targetGrade);
+  return Object.entries(scores)
+    .filter(([, s]) => s.total >= WEAK_MIN_ANSWERS && (s.correct / s.total) < WEAK_THRESHOLD)
+    .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total))
     .map(([name]) => ({ name }));
 }
 

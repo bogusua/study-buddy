@@ -50,6 +50,27 @@ const Storage = {
     localStorage.setItem('sb_progress', JSON.stringify(progress));
   },
 
+  getTopicScores(subjectKey, targetGrade) {
+    try {
+      return JSON.parse(localStorage.getItem(`sb_topic_scores_${subjectKey}_g${targetGrade}`)) || {};
+    } catch { return {}; }
+  },
+
+  updateTopicScores(subjectKey, targetGrade, questionResults) {
+    const scores = this.getTopicScores(subjectKey, targetGrade);
+    questionResults.forEach(qr => {
+      if (!qr.topic || qr.topic === 'Есе') return;
+      if (!scores[qr.topic]) scores[qr.topic] = { correct: 0, total: 0 };
+      scores[qr.topic].total++;
+      if (qr.correct) scores[qr.topic].correct++;
+    });
+    localStorage.setItem(`sb_topic_scores_${subjectKey}_g${targetGrade}`, JSON.stringify(scores));
+  },
+
+  clearTopicScores(subjectKey, targetGrade) {
+    localStorage.removeItem(`sb_topic_scores_${subjectKey}_g${targetGrade}`);
+  },
+
   getPool(subjectKey, targetGrade) {
     try {
       return JSON.parse(localStorage.getItem(`sb_pool_${subjectKey}_g${targetGrade}`)) || null;

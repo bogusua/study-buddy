@@ -130,7 +130,11 @@ const Stats = {
     const btnGroup = document.createElement('div');
     btnGroup.className = 'stats-subject-btns';
 
-    if (records.length >= 5) {
+    const topicScores = Storage.getTopicScores(key, config.targetGrade);
+    const hasWeakTopics = Object.values(topicScores).some(
+      s => s.total >= WEAK_MIN_ANSWERS && (s.correct / s.total) < WEAK_THRESHOLD
+    );
+    if (hasWeakTopics) {
       const weakBtn = document.createElement('button');
       weakBtn.className = 'stats-weak-btn';
       weakBtn.textContent = 'Слабкі теми →';
@@ -147,6 +151,7 @@ const Stats = {
     clearBtn.textContent = 'Очистити';
     clearBtn.addEventListener('click', () => this._confirmClear(`Очистити статистику по предмету "${name}"?`, () => {
       Storage.clearSubjectProgress(key);
+      Storage.clearTopicScores(key, config.targetGrade);
       this._render();
     }));
     btnGroup.appendChild(clearBtn);
@@ -154,6 +159,21 @@ const Stats = {
     header.appendChild(btnGroup);
     block.appendChild(header);
 
+    // Табки: Іспити / Теми
+    const tabs = document.createElement('div');
+    tabs.className = 'stats-tabs';
+    const tabExams = document.createElement('button');
+    tabExams.className = 'stats-tab stats-tab--active';
+    tabExams.textContent = 'Іспити';
+    const tabTopics = document.createElement('button');
+    tabTopics.className = 'stats-tab';
+    tabTopics.textContent = 'Теми';
+    tabs.appendChild(tabExams);
+    tabs.appendChild(tabTopics);
+    block.appendChild(tabs);
+
+    // Вид: іспити
+    const viewExams = document.createElement('div');
     const summary = document.createElement('div');
     summary.className = 'stats-summary';
     summary.innerHTML = `
@@ -165,18 +185,41 @@ const Stats = {
       <span>·</span>
       <span>сер. час: <b>~${avgTime}</b></span>
     `;
-    block.appendChild(summary);
+    viewExams.appendChild(summary);
 
     const lastWrong = last.total - last.correct - (last.skipped || 0);
     const lastEl = document.createElement('div');
     lastEl.className = 'stats-last';
     lastEl.innerHTML = `Останній (${last.total} пит.): <span class="stats-correct">${last.correct}</span> / <span class="stats-wrong">${lastWrong}</span> / <span class="stats-skipped">${last.skipped || 0}</span> · ${this._formatStart(last)}`;
-    block.appendChild(lastEl);
+    viewExams.appendChild(lastEl);
 
     if (records.length >= 2) {
-      block.appendChild(this._renderChart(records));
-      block.appendChild(this._renderLegend());
+      viewExams.appendChild(this._renderChart(records));
+      viewExams.appendChild(this._renderLegend());
     }
+    block.appendChild(viewExams);
+
+    // Вид: теми
+    const viewTopics = document.createElement('div');
+    viewTopics.classList.add('hidden');
+    viewTopics.appendChild(this._renderTopicsView(key));
+    block.appendChild(viewTopics);
+
+    tabExams.addEventListener('click', () => {
+      tabExams.classList.add('stats-tab--active');
+      tabTopics.classList.remove('stats-tab--active');
+      viewExams.classList.remove('hidden');
+      viewTopics.classList.add('hidden');
+    });
+    tabTopics.addEventListener('click', () => {
+      tabTopics.classList.add('stats-tab--active');
+      tabExams.classList.remove('stats-tab--active');
+      viewTopics.classList.remove('hidden');
+      viewExams.classList.add('hidden');
+      // Перерендерити вид тем щоразу (дані могли оновитись)
+      viewTopics.innerHTML = '';
+      viewTopics.appendChild(this._renderTopicsView(key));
+    });
 
     return block;
   },
@@ -212,6 +255,61 @@ const Stats = {
       <span>% правильних відповідей · вісь X — іспити по порядку</span>
     `;
     return legend;
+  },
+
+  _renderTopicsView(key) {
+    const scores = Storage.getTopicScores(key, config.targetGrade);
+    const entries = Object.entries(scores)
+      .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total));
+
+    if (entries.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'stats-topics-empty';
+      empty.textContent = 'Дані з\'являться після перших іспитів.';
+      return empty;
+    }
+
+    const container = document.createElement('div');
+    container.className = 'stats-topics';
+
+    entries.forEach(([topic, s]) => {
+      const pct = s.total === 0 ? 0 : Math.round((s.correct / s.total) * 100);
+      const hasEnough = s.total >= WEAK_MIN_ANSWERS;
+      const isWeak = hasEnough && pct / 100 < WEAK_THRESHOLD;
+      const color = !hasEnough ? 'var(--text-muted)' : isWeak ? 'var(--wrong)' : 'var(--correct)';
+
+      const row = document.createElement('div');
+      row.className = 'stats-topic-row';
+
+      const nameEl = document.createElement('span');
+      nameEl.className = 'stats-topic-name';
+      nameEl.textContent = topic;
+
+      const barWrap = document.createElement('div');
+      barWrap.className = 'stats-topic-bar-wrap';
+
+      const bar = document.createElement('div');
+      bar.className = 'stats-topic-bar';
+      bar.style.width = hasEnough ? `${pct}%` : '0%';
+      bar.style.background = color;
+      barWrap.appendChild(bar);
+
+      const threshLine = document.createElement('div');
+      threshLine.className = 'stats-topic-threshold';
+      barWrap.appendChild(threshLine);
+
+      const label = document.createElement('span');
+      label.className = 'stats-topic-pct';
+      label.style.color = color;
+      label.textContent = hasEnough ? `${pct}%` : `${s.total} відп.`;
+
+      row.appendChild(nameEl);
+      row.appendChild(barWrap);
+      row.appendChild(label);
+      container.appendChild(row);
+    });
+
+    return container;
   },
 
   _renderChart(records) {
