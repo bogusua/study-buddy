@@ -1,4 +1,4 @@
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 
 // Default config — overridden by config/settings.json
 const DEFAULT_CONFIG = {
@@ -97,7 +97,18 @@ async function loadSubjects() {
 
 // ─── Flow ────────────────────────────────────────────────────────────────────
 
+function fixViewportHeight() {
+  const set = () => {
+    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--real-vh', h + 'px');
+  };
+  set();
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', set);
+  else window.addEventListener('resize', set);
+}
+
 async function init() {
+  fixViewportHeight();
   Storage.migrateIfNeeded();
   UI.init();
   UI.setInputEnabled(false);

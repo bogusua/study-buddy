@@ -50,7 +50,8 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh; /* мобільні браузери: не враховує адресний рядок */
+  height: 100dvh;
+  height: var(--real-vh, 100dvh); /* точна висота без браузерного chrome */
 }
 
 /* Header */
@@ -347,6 +348,7 @@ html, body {
   background: var(--surface);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .input-hint {
