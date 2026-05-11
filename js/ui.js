@@ -122,7 +122,9 @@ const UI = {
     clearInterval(this._stopwatchInterval);
     this._stopwatchInterval = setInterval(() => {
       this._stopwatchSeconds++;
-      this._stopwatchEl.textContent = this._formatStopwatch(this._stopwatchSeconds);
+      const m = Math.floor(this._stopwatchSeconds / 60);
+      const s = this._stopwatchSeconds % 60;
+      this._stopwatchEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
     }, 1000);
   },
 
@@ -135,19 +137,9 @@ const UI = {
     return this._stopwatchSeconds;
   },
 
-  _formatStopwatch(sec) {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = sec % 60;
-    if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  },
-
   getStopwatchTime() {
-    const h = Math.floor(this._stopwatchSeconds / 3600);
-    const m = Math.floor((this._stopwatchSeconds % 3600) / 60);
+    const m = Math.floor(this._stopwatchSeconds / 60);
     const s = this._stopwatchSeconds % 60;
-    if (h > 0) return `${h} год ${m} хв ${s} сек`;
     return m > 0
       ? `${m} хв ${s} сек`
       : `${s} сек`;
