@@ -117,7 +117,16 @@
           </div>
         </div>
         <label class="settings-label">
-          API ключ Gemini
+          <span class="settings-label-row">
+            API ключ Gemini
+            <button type="button" id="apikey-info-btn" class="settings-info-btn" title="Як отримати ключ">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </button>
+          </span>
           <div class="settings-apikey-wrap">
             <input id="settings-apikey" type="password" class="settings-input" placeholder="AIza..." autocomplete="off">
             <button type="button" id="settings-apikey-toggle" class="settings-apikey-toggle">Показати</button>
@@ -160,6 +169,25 @@
         </div>
         <button type="submit" class="settings-save">Зберегти</button>
       </form>
+    </div>
+  </div>
+
+  <!-- API key info popup -->
+  <div id="apikey-info-popup" class="apikey-popup hidden">
+    <div class="apikey-popup-dialog">
+      <button id="apikey-info-close" class="apikey-popup-close">&times;</button>
+      <div class="apikey-popup-title">Як отримати API ключ</div>
+      <div class="apikey-popup-body">
+        <p>API ключ дозволяє додатку звертатись до Gemini — мозку Study Buddy.</p>
+        <ol>
+          <li>Перейди на <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a></li>
+          <li>Натисни <strong>«Create API key»</strong></li>
+          <li>Скопіюй ключ і встав його у поле вище</li>
+        </ol>
+        <div class="apikey-popup-tip">
+          <strong>Порада для батьків.</strong> Якщо у вашій родині є підписка Google One AI Premium або підписка на Google Workspace — ліміти Gemini API там значно вищі. У такому випадку краще створити ключ у тому акаунті, де є підписка.
+        </div>
+      </div>
     </div>
   </div>
 

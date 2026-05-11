@@ -21,6 +21,17 @@ const Settings = {
     this._modal.addEventListener('click', (e) => {
       if (e.target === this._modal) this.close();
     });
+
+    const popup = document.getElementById('apikey-info-popup');
+    document.getElementById('apikey-info-btn').addEventListener('click', () => {
+      popup.classList.remove('hidden');
+    });
+    document.getElementById('apikey-info-close').addEventListener('click', () => {
+      popup.classList.add('hidden');
+    });
+    popup.addEventListener('click', (e) => {
+      if (e.target === popup) popup.classList.add('hidden');
+    });
   },
 
   open() {

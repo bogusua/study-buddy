@@ -1010,9 +1010,19 @@ html, body {
   background: var(--border);
 }
 
-.settings-seg-btn--font-s { font-size: 0.75em; }
-.settings-seg-btn--font-m { font-size: 1em; }
-.settings-seg-btn--font-l { font-size: 1.25em; }
+.settings-seg-btn--font-s,
+.settings-seg-btn--font-m,
+.settings-seg-btn--font-l {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+}
+
+.settings-seg-btn--font-s { font-size: 0.72em; }
+.settings-seg-btn--font-m { font-size: 0.95em; }
+.settings-seg-btn--font-l { font-size: 1.22em; }
 
 .settings-save {
   padding: 10px;
@@ -1030,6 +1040,105 @@ html, body {
 
 .settings-save:hover {
   background: var(--primary-dark);
+}
+
+/* API key label with info button */
+.settings-label-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.settings-info-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.settings-info-btn:hover {
+  color: var(--primary);
+}
+
+/* API key info popup */
+.apikey-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.apikey-popup.hidden {
+  display: none;
+}
+
+.apikey-popup-dialog {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  max-width: 320px;
+  width: calc(100% - 32px);
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+
+.apikey-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.4em;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.apikey-popup-close:hover { color: var(--text); }
+
+.apikey-popup-title {
+  font-weight: 600;
+  font-size: 1em;
+  margin-bottom: 12px;
+  padding-right: 20px;
+}
+
+.apikey-popup-body p,
+.apikey-popup-body ol {
+  margin: 0 0 10px;
+  font-size: 0.88em;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.apikey-popup-body ol {
+  padding-left: 18px;
+}
+
+.apikey-popup-body ol li {
+  margin-bottom: 4px;
+}
+
+.apikey-popup-body a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.apikey-popup-tip {
+  font-size: 0.82em;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
 }
 
 /* Stats modal */
