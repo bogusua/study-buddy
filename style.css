@@ -1072,6 +1072,13 @@ html, body {
   background: var(--primary-dark);
 }
 
+.settings-version {
+  text-align: center;
+  font-size: 0.75em;
+  color: var(--text-muted);
+  padding-top: 6px;
+}
+
 /* API key label with info button */
 .settings-label-row {
   display: flex;

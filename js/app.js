@@ -1,3 +1,5 @@
+const APP_VERSION = '1.0.0';
+
 // Default config — overridden by config/settings.json
 const DEFAULT_CONFIG = {
   model: 'gemini-3.1-flash-lite-preview',
@@ -96,6 +98,7 @@ async function loadSubjects() {
 // ─── Flow ────────────────────────────────────────────────────────────────────
 
 async function init() {
+  Storage.migrateIfNeeded();
   UI.init();
   UI.setInputEnabled(false);
   Settings.init();
@@ -690,3 +693,18 @@ function waitForInput() {
 // ─── Start ───────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', init);
+
+// PWA: показуємо пропозицію оновлення коли новий SW чекає
+window.addEventListener('sw-update-waiting', (e) => {
+  UI._suppressLog = true;
+  UI.addBot('🆕 Доступне оновлення Study Buddy. Встанови щоб отримати нові можливості.', {
+    buttons: [{
+      label: 'Оновити зараз',
+      onClick: () => {
+        e.detail.waiting.postMessage({ type: 'SKIP_WAITING' });
+        navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
+      }
+    }]
+  });
+  UI._suppressLog = false;
+});

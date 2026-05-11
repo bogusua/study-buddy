@@ -1,4 +1,15 @@
+const STORAGE_VERSION = 1;
+
 const Storage = {
+  migrateIfNeeded() {
+    const v = parseInt(localStorage.getItem('sb_storage_v') || '0');
+    // v === 0 — перший запуск або версія до введення версійності
+    // Тут додавати міграції: if (v < 2) migrate_1_to_2();
+    if (v !== STORAGE_VERSION) {
+      localStorage.setItem('sb_storage_v', String(STORAGE_VERSION));
+    }
+  },
+
   getApiKey() {
     return localStorage.getItem('sb_api_key') || '';
   },

@@ -37,6 +37,7 @@ const Settings = {
 
   open() {
     this._initAppearance();
+    document.getElementById('settings-version').textContent = `Study Buddy v${APP_VERSION}`;
     document.getElementById('settings-apikey').value = config.apiKey || '';
     document.getElementById('settings-apikey').type = 'password';
     document.getElementById('settings-apikey-toggle').textContent = 'Показати';
