@@ -1,0 +1,21 @@
+{
+  "name": "Study Buddy",
+  "short_name": "Study Buddy",
+  "description": "Тренажер для підготовки до вступних іспитів у ліцей",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f6ef7",
+  "icons": [
+    {
+      "src": "icons/icon48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ]
+}

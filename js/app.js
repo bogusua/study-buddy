@@ -7,6 +7,13 @@ const DEFAULT_CONFIG = {
   useNano: false
 };
 
+function getResourceURL(path) {
+  if (typeof chrome !== 'undefined' && chrome.runtime?.getURL) {
+    return chrome.runtime.getURL(path);
+  }
+  return path;
+}
+
 let config = { ...DEFAULT_CONFIG };
 let subjects = {};
 let lastSubjectKey = null;
@@ -65,7 +72,7 @@ async function loadConfig() {
   }
   // 2. Міграція з settings.json → localStorage
   try {
-    const res = await fetch(chrome.runtime.getURL('config/settings.json'));
+    const res = await fetch(getResourceURL('config/settings.json'));
     const json = await res.json();
     config = { ...DEFAULT_CONFIG, ...json };
     Storage.saveSettings(config);
@@ -78,7 +85,7 @@ async function loadSubjects() {
   const files = ['math', 'ukrainian'];
   await Promise.all(files.map(async key => {
     try {
-      const res = await fetch(chrome.runtime.getURL(`subjects/${key}.json`));
+      const res = await fetch(getResourceURL(`subjects/${key}.json`));
       subjects[key] = await res.json();
     } catch {
       // skip missing subject files

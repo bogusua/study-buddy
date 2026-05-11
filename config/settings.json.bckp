@@ -1,0 +1,8 @@
+{
+  "apiKey": "AIzaSyDLPSN2J7VW2mIJz00LrMzLkHVyJrzeqms",
+  "studentName": "Тимофій",
+  "targetGrade": 8,
+  "questionsPerSession": 3,
+  "model": "gemini-3.1-flash-lite-preview",
+  "useNano": false
+}
