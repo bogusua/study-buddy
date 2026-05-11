@@ -1,4 +1,4 @@
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 
 // Default config — overridden by config/settings.json
 const DEFAULT_CONFIG = {
