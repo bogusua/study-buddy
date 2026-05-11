@@ -151,6 +151,36 @@ html, body {
   background: var(--border);
 }
 
+.theme-toggle:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle:disabled:hover {
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
+/* Перекреслене коло поверх іконки */
+.theme-toggle:disabled::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.75px),
+    currentColor calc(50% - 0.75px),
+    currentColor calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 /* Subheader (exam actions + stopwatch) */
 .subheader {
   display: none;
