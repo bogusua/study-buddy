@@ -96,13 +96,19 @@
 - [ ] Додавання нових предметів через новий JSON у subjects/
 - [ ] Графіки прогресу
 
-## Phase 7 — Web / PWA режим
-- [ ] `getResourceURL(path)` хелпер — замість прямих `chrome.runtime.getURL()` викликів
-- [ ] `index.html` — точка входу для веб (той самий UI що `side_panel.html`)
-- [ ] `site.webmanifest` — PWA маніфест: назва, іконки, `display: standalone`, `start_url`
-- [ ] `<link rel="manifest">` в `index.html`
-- [ ] `.gitignore`: `config/settings.json` — не комітити реальний ключ, тільки template
-- [ ] Розгортання на GitHub/GitLab Pages
+## Phase 7 — Web / PWA режим ✅
+- [x] `getResourceURL(path)` хелпер — замість прямих `chrome.runtime.getURL()` викликів
+- [x] `index.html` — єдина точка входу для обох режимів (замінила `side_panel.html`); extension manifest оновлено
+- [x] `site.webmanifest` — PWA маніфест: назва, іконки, `display: standalone`, `start_url: "./"`
+- [x] SW реєстрація тільки у веб-режимі (не в extension)
+- [x] `sw.js` — кешування app shell, network-only для Gemini API, `SKIP_WAITING` по запиту користувача
+- [x] Оновлення SW → бот-повідомлення з кнопкою "Оновити зараз" (не тихе автооновлення)
+- [x] `APP_VERSION = '1.0.0'` в `app.js`; версія відображається в налаштуваннях
+- [x] `STORAGE_VERSION` + `migrateIfNeeded()` — інфраструктура для міграцій localStorage
+- [x] `.gitignore`: `config/settings.json` не комітується
+- [x] `README.md` + `LICENSE` (AGPL-3.0)
+- [x] GitHub Actions workflow (`pages.yml`) — деплой на push в `main`
+- [x] Розгорнуто на [bogusua.github.io/study-buddy](https://bogusua.github.io/study-buddy/)
 - [ ] Перевірка встановлення як PWA на комп / Android / iOS
 
 ## Phase 8 — Офлайн-режим
@@ -110,4 +116,3 @@
 - [ ] При переході офлайн → системний меседж в чаті, блокування `startExam` і `evaluateAnswer`
 - [ ] При поверненні онлайн → системний меседж "З'єднання відновлено"
 - [ ] Виняток: `config.useNano && Nano.isAvailable()` → перевірка відповідей через Nano дозволена офлайн
-- [ ] Service worker (опційно) — кешування app shell для PWA
