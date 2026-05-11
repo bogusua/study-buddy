@@ -95,4 +95,19 @@
 ## Phase 6 — Конфігурація і масштабування
 - [ ] Додавання нових предметів через новий JSON у subjects/
 - [ ] Графіки прогресу
-- [ ] PWA / офлайн-режим (де можливо без Gemini)
+
+## Phase 7 — Web / PWA режим
+- [ ] `getResourceURL(path)` хелпер — замість прямих `chrome.runtime.getURL()` викликів
+- [ ] `index.html` — точка входу для веб (той самий UI що `side_panel.html`)
+- [ ] `site.webmanifest` — PWA маніфест: назва, іконки, `display: standalone`, `start_url`
+- [ ] `<link rel="manifest">` в `index.html`
+- [ ] `.gitignore`: `config/settings.json` — не комітити реальний ключ, тільки template
+- [ ] Розгортання на GitHub/GitLab Pages
+- [ ] Перевірка встановлення як PWA на комп / Android / iOS
+
+## Phase 8 — Офлайн-режим
+- [ ] `navigator.onLine` перевірка при старті + події `offline`/`online`
+- [ ] При переході офлайн → системний меседж в чаті, блокування `startExam` і `evaluateAnswer`
+- [ ] При поверненні онлайн → системний меседж "З'єднання відновлено"
+- [ ] Виняток: `config.useNano && Nano.isAvailable()` → перевірка відповідей через Nano дозволена офлайн
+- [ ] Service worker (опційно) — кешування app shell для PWA
