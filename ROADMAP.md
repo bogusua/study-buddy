@@ -111,7 +111,7 @@
 - [x] `README.md` + `LICENSE` (AGPL-3.0)
 - [x] GitHub Actions workflow (`pages.yml`) — деплой на push в `main`
 - [x] Розгорнуто на [bogusua.github.io/study-buddy](https://bogusua.github.io/study-buddy/)
-- [ ] Перевірка встановлення як PWA на комп / Android / iOS
+- [x] Перевірка встановлення як PWA на комп / Android / iOS
 
 ## Phase 9 — Модуль підготовки до НМТ
 > НМТ (Національний мультипредметний тест) — вступний іспит до українських університетів.
