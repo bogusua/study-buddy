@@ -2,8 +2,8 @@ const Nano = {
   _session: null,
   available: false,
 
-  // Повертає 'readily' | 'after-download' | 'no' | 'unavailable'
-  // 'unavailable' — LanguageModel API взагалі відсутній у браузері
+  // Повертає 'available' | 'downloadable' | 'downloading' | 'unavailable'
+  // 'unavailable' — модель не підтримується або LanguageModel API відсутній
   async checkAvailability() {
     try {
       return await LanguageModel.availability({
@@ -17,7 +17,7 @@ const Nano = {
 
   async init() {
     const status = await this.checkAvailability();
-    if (status === 'readily') {
+    if (status === 'available') {
       this.available = true;
     }
   }

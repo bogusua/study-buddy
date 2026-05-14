@@ -80,7 +80,7 @@ const Settings = {
     const hint = document.getElementById('settings-nano-hint');
     const status = await Nano.checkAvailability();
 
-    if (status === 'readily' || status === 'after-download') {
+    if (status === 'available' || status === 'downloadable' || status === 'downloading') {
       checkbox.disabled = false;
       hint.classList.add('hidden');
     } else {
