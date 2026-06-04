@@ -943,6 +943,20 @@ html, body {
   display: none;
 }
 
+.settings-nano-download-btn {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+.settings-nano-download-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .settings-pool-section {
   border-top: 1px solid var(--border);
   padding-top: 10px;

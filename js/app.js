@@ -1,4 +1,4 @@
-const APP_VERSION = '1.1.4';
+const APP_VERSION = '1.1.5';
 
 // Default config — overridden by config/settings.json
 const DEFAULT_CONFIG = {
@@ -325,15 +325,31 @@ async function askNextQuestion() {
   UI.setProgress(Quiz.progress());
   UI.addBot(`${prefix}\n\n${q.question}`, { skipBtn: !isEssay });
 
-  const answer = await waitForInput();
+  let answered = false;
+  while (!answered) {
+    const answer = await waitForInput();
 
-  if (answer === null) {
-    // Skipped
-    await evaluateAnswer(null, true);
-  } else {
-    UI.addUser(answer);
-    UI.setInputEnabled(false);
-    await evaluateAnswer(answer, false);
+    if (answer === null) {
+      await evaluateAnswer(null, true);
+      answered = true;
+    } else {
+      UI.addUser(answer);
+      UI.setInputEnabled(false);
+
+      if (config.useNano && Nano.available && q.type !== 'essay') {
+        UI.showTyping(true);
+        const nanoResult = await Nano.validate(q.subject || '', q.question, answer);
+        UI._removeTyping();
+        if (!nanoResult.trim().toUpperCase().startsWith('YES')) {
+          UI.addBot('Схоже, відповідь не по темі. Спробуй ще раз.');
+          UI.setInputEnabled(true);
+          continue;
+        }
+      }
+
+      await evaluateAnswer(answer, false);
+      answered = true;
+    }
   }
 }
 
@@ -345,16 +361,6 @@ async function evaluateAnswer(studentAnswer, isSkipped) {
     result = { correct: false, explanation: `Правильна відповідь: ${q.answer}` };
   } else {
     try {
-      if (config.useNano && Nano.available && q.type !== 'essay') {
-        UI.showTyping(true);
-        const nanoResult = await Nano.validate(q.subject || '', q.question, studentAnswer);
-        if (!nanoResult.trim().toUpperCase().startsWith('YES')) {
-          UI._removeTyping();
-          UI.addBot('Схоже, відповідь не по темі. Спробуй ще раз.');
-          UI.setInputEnabled(true);
-          return;
-        }
-      }
       UI.showTyping();
       result = q.type === 'essay'
         ? await Gemini.evaluateEssay(config.apiKey, config.model, q.question, studentAnswer, config.targetGrade, config.studentName)

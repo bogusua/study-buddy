@@ -41,7 +41,7 @@ study-buddy/
 │   ├── gemini.js       # Gemini API: генерація питань + перевірка відповіді
 │   ├── storage.js      # обгортка над sessionStorage і localStorage
 │   ├── ui.js           # рендер DOM, взаємодія
-│   ├── nano.js         # Gemini Nano: перевірка доступності (checkAvailability)
+│   ├── nano.js         # Gemini Nano: checkAvailability, validate(), session management
 │   └── settings.js     # модальне вікно налаштувань
 ├── subjects/
 │   ├── math.json       # каталог тем математики

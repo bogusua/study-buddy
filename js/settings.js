@@ -78,12 +78,21 @@ const Settings = {
   async _checkNanoAvailability() {
     const checkbox = document.getElementById('settings-nano');
     const hint = document.getElementById('settings-nano-hint');
+    const existingBtn = document.getElementById('settings-nano-download');
+    if (existingBtn) existingBtn.remove();
+
     const status = await Nano.checkAvailability();
 
     if (status === 'available' || status === 'downloadable') {
       checkbox.disabled = false;
       if (status === 'downloadable') {
-        hint.textContent = 'Потрібне завантаження моделі (~1.7 ГБ).';
+        const btn = document.createElement('button');
+        btn.id = 'settings-nano-download';
+        btn.className = 'settings-nano-download-btn';
+        btn.textContent = 'Завантажити (~1.7 ГБ)';
+        btn.onclick = () => this._downloadNano(btn, hint);
+        hint.textContent = '';
+        hint.appendChild(btn);
         hint.classList.remove('hidden');
       } else {
         hint.classList.add('hidden');
@@ -101,6 +110,30 @@ const Settings = {
         hint.textContent = 'Gemini Nano API не підтримується цим браузером.';
       }
       hint.classList.remove('hidden');
+    }
+  },
+
+  async _downloadNano(btn, hint) {
+    btn.disabled = true;
+    hint.childNodes.forEach(n => { if (n.nodeType === Node.TEXT_NODE) n.remove(); });
+    const progress = document.createTextNode('Завантаження: 0%');
+    hint.appendChild(progress);
+    try {
+      const session = await LanguageModel.create({
+        monitor(m) {
+          m.addEventListener('downloadprogress', (e) => {
+            progress.textContent = `Завантаження: ${Math.round(e.loaded * 100)}%`;
+          });
+        }
+      });
+      Nano._session = session;
+      Nano.available = true;
+      hint.classList.add('hidden');
+      btn.remove();
+    } catch (e) {
+      progress.textContent = ' Помилка. Спробуйте ще раз.';
+      btn.textContent = 'Повторити';
+      btn.disabled = false;
     }
   },
 
