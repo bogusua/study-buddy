@@ -80,17 +80,26 @@ const Settings = {
     const hint = document.getElementById('settings-nano-hint');
     const status = await Nano.checkAvailability();
 
-    if (status === 'readily' || status === 'after-download') {
+    if (status === 'available' || status === 'downloadable') {
       checkbox.disabled = false;
-      hint.classList.add('hidden');
+      if (status === 'downloadable') {
+        hint.textContent = 'Потрібне завантаження моделі (~1.7 ГБ).';
+        hint.classList.remove('hidden');
+      } else {
+        hint.classList.add('hidden');
+      }
     } else {
       checkbox.disabled = true;
       checkbox.checked = false;
       config.useNano = false;
       Storage.saveSettings({ ...config, useNano: false });
-      hint.textContent = status === 'no'
-        ? 'Gemini Nano недоступний на цьому пристрої.'
-        : 'Gemini Nano API не підтримується цим браузером.';
+      if (status === 'downloading') {
+        hint.textContent = 'Модель завантажується, спробуйте пізніше.';
+      } else if (status === 'unavailable') {
+        hint.textContent = 'Gemini Nano недоступний на цьому пристрої.';
+      } else {
+        hint.textContent = 'Gemini Nano API не підтримується цим браузером.';
+      }
       hint.classList.remove('hidden');
     }
   },

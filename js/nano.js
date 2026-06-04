@@ -2,22 +2,19 @@ const Nano = {
   _session: null,
   available: false,
 
-  // Повертає 'readily' | 'after-download' | 'no' | 'unavailable'
-  // 'unavailable' — LanguageModel API взагалі відсутній у браузері
+  // Повертає 'available' | 'downloadable' | 'downloading' | 'unavailable' | 'no-api'
+  // 'no-api' — LanguageModel API взагалі відсутній у браузері
   async checkAvailability() {
     try {
-      return await LanguageModel.availability({
-        expectedInputs: [{ type: 'text', languages: ['en'] }],
-        expectedOutputs: [{ type: 'text', languages: ['en'] }]
-      });
+      return await LanguageModel.availability({ languages: ['uk', 'en'] });
     } catch (e) {
-      return 'unavailable';
+      return 'no-api';
     }
   },
 
   async init() {
     const status = await this.checkAvailability();
-    if (status === 'readily') {
+    if (status === 'available') {
       this.available = true;
     }
   }
