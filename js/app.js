@@ -1,4 +1,4 @@
-const APP_VERSION = '1.1.3';
+const APP_VERSION = '1.1.4';
 
 // Default config — overridden by config/settings.json
 const DEFAULT_CONFIG = {
@@ -344,8 +344,18 @@ async function evaluateAnswer(studentAnswer, isSkipped) {
   if (isSkipped) {
     result = { correct: false, explanation: `Правильна відповідь: ${q.answer}` };
   } else {
-    UI.showTyping();
     try {
+      if (config.useNano && Nano.available && q.type !== 'essay') {
+        UI.showTyping(true);
+        const nanoResult = await Nano.validate(q.subject || '', q.question, studentAnswer);
+        if (!nanoResult.trim().toUpperCase().startsWith('YES')) {
+          UI._removeTyping();
+          UI.addBot('Схоже, відповідь не по темі. Спробуй ще раз.');
+          UI.setInputEnabled(true);
+          return;
+        }
+      }
+      UI.showTyping();
       result = q.type === 'essay'
         ? await Gemini.evaluateEssay(config.apiKey, config.model, q.question, studentAnswer, config.targetGrade, config.studentName)
         : await Gemini.checkAnswer(config.apiKey, config.model, q.question, q.answer, studentAnswer, config.targetGrade, config.studentName);

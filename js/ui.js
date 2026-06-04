@@ -463,10 +463,10 @@ const UI = {
     this._scrollToBottom();
   },
 
-  showTyping() {
+  showTyping(nano = false) {
     this._removeTyping();
     const msg = document.createElement('div');
-    msg.className = 'message bot typing';
+    msg.className = 'message bot typing' + (nano ? ' typing--nano' : '');
     msg.innerHTML = `<div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
     this._typingEl = msg;
     this.messagesEl.appendChild(msg);
