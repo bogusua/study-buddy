@@ -17,5 +17,14 @@ const Nano = {
     if (status === 'available') {
       this.available = true;
     }
+  },
+
+  // Повертає 'YES' якщо відповідь осмислена, 'NO' якщо nonsense
+  async validate(subject, question, answer) {
+    const session = await LanguageModel.create();
+    const prompt = `Subject: ${subject}\nQuestion: ${question}\nStudent answer: ${answer}\n\nIs this a meaningful attempt to answer the question (not random text, gibberish, or completely off-topic)? Reply YES or NO.`;
+    const result = await session.prompt(prompt);
+    session.destroy();
+    return result;
   }
 };
